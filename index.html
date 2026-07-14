@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Квиты / Quits / A Mano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1F3EE; --card:#FFFFFF; --ink:#17251F; --ink-soft:#5A6B62;
+  --deal:#2E7D5B; --deal-dark:#1F5C42; --xp:#DFA928; --remote:#3B6EA5;
+  --line:#DCE2DA; --danger:#B4543C; --radius:14px;
+  --dealL:#E3F0E9; --dealD:#1F5C42; --goldL:#FDF6E1;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Golos Text',system-ui,sans-serif;background:var(--paper);color:var(--ink);
+  -webkit-font-smoothing:antialiased;font-size:15px;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.screen{display:none;min-height:100dvh;padding-bottom:76px}
+.screen.active{display:flex;flex-direction:column}
+.mono{font-family:'JetBrains Mono',monospace;font-weight:500}
+
+.langsw{
+  position:fixed;top:14px;right:14px;z-index:50;display:flex;
+  background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;
+  box-shadow:0 2px 10px rgba(23,37,31,.06);
+}
+.langsw button{
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
+  padding:5px 10px;border-radius:999px;color:var(--ink-soft);transition:all .15s;
+}
+.langsw button.on{background:var(--ink);color:#fff}
+
+.nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  background:var(--card);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;padding:8px 0 max(10px,env(safe-area-inset-bottom));
+}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--ink-soft);transition:color .15s}
+.nav button .ic{font-size:19px;line-height:1}
+.nav button.on{color:var(--deal-dark)}
+
+/* HOME */
+#home{align-items:center;justify-content:center;padding:24px;text-align:center}
+.logo{font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(38px,9vw,60px);letter-spacing:-.02em}
+.logo .swap{color:var(--deal);display:inline-block}
+.tagline{color:var(--ink-soft);margin:10px 0 34px;font-size:16px}
+.searchwrap{width:100%;max-width:560px}
+.searchbar{
+  display:flex;align-items:center;gap:10px;background:var(--card);
+  border:1.5px solid var(--line);border-radius:999px;padding:15px 20px;
+  box-shadow:0 4px 18px rgba(23,37,31,.07);transition:border-color .2s, box-shadow .2s;
+}
+.searchbar:focus-within{border-color:var(--deal);box-shadow:0 6px 24px rgba(46,125,91,.16)}
+.searchbar svg{flex:none}
+.searchbar input{flex:1;border:none;outline:none;font-size:17px;font-family:inherit;background:transparent;color:var(--ink);min-width:0}
+.searchbar input::placeholder{color:#9AA8A0}
+.go{background:var(--deal);color:#fff;border-radius:999px;padding:9px 18px;font-weight:600;font-size:15px;flex:none;transition:background .15s}
+.go:active{background:var(--deal-dark)}
+.cloudlbl{margin-top:34px;font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-soft);font-weight:600}
+.cloud{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;align-items:baseline;margin-top:26px;max-width:560px;line-height:1.9}
+.tag{color:var(--ink);padding:2px 6px;border-radius:8px;transition:color .15s, background .15s;white-space:nowrap}
+.tag:active,.tag:hover{color:var(--deal-dark);background:#E3F0E9}
+.tag.t4:active,.tag.t4:hover{color:var(--danger);background:#F7E7E2}
+.tag.t-hot:active,.tag.t-hot:hover{color:#8A6510;background:#FDF3DA}
+.tag .n{font-family:'JetBrains Mono',monospace;font-size:.62em;color:var(--ink-soft);font-weight:500;margin-left:3px;vertical-align:super}
+.t1{font-size:22px;font-weight:600;color:var(--deal-dark)}
+.t2{font-size:18px;font-weight:600;color:var(--deal)}
+.t3{font-size:15.5px;font-weight:500}
+.t4{font-size:13.5px;color:var(--danger)}
+.t4 .n{color:var(--danger)}
+.t-hot{color:var(--xp);font-weight:600}
+.t-hot .n{color:var(--xp)}
+.mystatus{margin-top:44px;font-size:13.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--deal);flex:none}
+
+.badge{font-size:11px;font-weight:600;padding:2.5px 8px;border-radius:6px;letter-spacing:.02em}
+.b-ver{background:#E3F0E9;color:var(--deal-dark)}
+.b-conf{background:#FDF3DA;color:#8A6510}
+.b-decl{background:#EEF0EE;color:var(--ink-soft)}
+.b-mentor{background:#EAF0F7;color:var(--remote)}
+.karma{font-size:11px;font-weight:600;padding:2.5px 8px;border-radius:6px;letter-spacing:.02em;display:inline-flex;align-items:center;gap:4px}
+.k-high{background:#E3F0E9;color:var(--deal-dark)}
+.k-norm{background:#EEF0EE;color:var(--ink-soft)}
+.k-low{background:#F7E7E2;color:var(--danger)}
+
+/* RESULTS */
+.topbar{position:sticky;top:0;z-index:10;background:var(--paper);padding:12px 16px 0;border-bottom:1px solid var(--line)}
+.toprow{display:flex;align-items:center;gap:10px;padding-right:126px}
+.minilogo{font-family:'Unbounded',sans-serif;font-weight:700;font-size:19px;flex:none}
+.minilogo .swap{color:var(--deal)}
+.searchbar.compact{padding:9px 14px;box-shadow:none;flex:1}
+.searchbar.compact input{font-size:15px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13.5px;color:var(--ink);display:flex;align-items:center;gap:6px;transition:all .15s}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.morefilters{background:var(--card);border-bottom:1px solid var(--line);padding:16px;display:none}
+.morefilters.open{display:block}
+.frow{margin-bottom:16px}
+.frow:last-child{margin-bottom:0}
+.flabel{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+.fopts{display:flex;flex-wrap:wrap;gap:7px}
+.fopt{border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13.5px;background:var(--paper);color:var(--ink);transition:all .15s}
+.fopt.on{background:var(--deal);border-color:var(--deal);color:#fff}
+.resmeta{padding:14px 16px 4px;font-size:13.5px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.reslist{padding:10px 16px 40px;display:flex;flex-direction:column;gap:12px;max-width:640px;width:100%;margin:0 auto}
+.rcard{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;text-align:left;width:100%;transition:transform .12s}
+.rcard:active{transform:scale(.985)}
+.rtop{padding:14px 16px 12px;display:flex;gap:12px;align-items:flex-start}
+.ava{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:17px;color:#fff}
+.rname{font-weight:600;font-size:15.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rskill{font-size:14px;color:var(--ink-soft);margin-top:2px}
+.rmeta{display:flex;flex-wrap:wrap;gap:5px 14px;font-size:13px;color:var(--ink-soft);padding:0 16px 12px;align-items:center}
+.rmeta .free{color:var(--deal);font-weight:600}
+.rmeta .busy{color:var(--danger);font-weight:600}
+.kvitline{border-top:1.5px dashed var(--line);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:linear-gradient(0deg,#FBFCFA,#FFF)}
+.kvitline .eq{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14.5px}
+.kvitline .eq .swap{color:var(--deal);padding:0 4px}
+.kvitline .xp{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--xp);background:#FDF6E1;border-radius:6px;padding:3px 8px}
+.stars{color:var(--xp);letter-spacing:1px}
+
+/* PROFILE / cards */
+.pbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.back{font-size:15px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px}
+.pbody{max-width:640px;width:100%;margin:0 auto;padding:20px 16px 48px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.phead{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.ava.big{width:60px;height:60px;font-size:23px}
+.pname{font-family:'Unbounded',sans-serif;font-weight:500;font-size:19px}
+.psub{font-size:13.5px;color:var(--ink-soft);margin-top:3px}
+.pstats{display:flex;border-top:1px solid var(--line);padding-top:14px}
+.pstat{flex:1;text-align:center}
+.pstat .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px}
+.pstat .k{font-size:11.5px;color:var(--ink-soft);margin-top:3px}
+.sect{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;margin:20px 4px 10px}
+.ladder{display:flex;margin-top:6px}
+.step{flex:1;text-align:center;position:relative}
+.step .pt{width:14px;height:14px;border-radius:50%;background:var(--line);margin:0 auto 6px;position:relative;z-index:2;border:3px solid var(--card)}
+.step.done .pt{background:var(--deal)}
+.step .lbl{font-size:11px;color:var(--ink-soft)}
+.step.done .lbl{color:var(--deal-dark);font-weight:600}
+.step::before{content:'';position:absolute;top:5.5px;left:-50%;width:100%;height:3px;background:var(--line);z-index:1}
+.step:first-child::before{display:none}
+.step.done::before{background:var(--deal)}
+.bnote{font-size:12.5px;color:var(--ink-soft);margin:13px 2px 0;line-height:1.45;display:flex;gap:7px;align-items:flex-start}
+.bnote.warn{color:#8A6510}
+.recov{border:1.5px solid var(--danger);background:#FDF7F5;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:13px;line-height:1.5}
+.recov b{color:var(--danger)}
+
+.builder{background:var(--card);border:1.5px solid var(--deal);border-radius:var(--radius);padding:18px;box-shadow:0 6px 22px rgba(46,125,91,.12)}
+.btitle{font-weight:600;font-size:15.5px;margin-bottom:14px}
+.bside{background:var(--paper);border-radius:10px;padding:13px 14px}
+.bwho{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:600;margin-bottom:6px}
+.bwhat{font-weight:500;font-size:14.5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bwhat select{font-family:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--card);color:var(--ink);flex:1;min-width:0}
+.hourpick{display:flex;align-items:center;gap:10px;flex:none}
+.hbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:17px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.hval{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;min-width:38px;text-align:center}
+.bswap{text-align:center;margin:9px 0;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:var(--deal)}
+.propose{width:100%;margin-top:15px;background:var(--deal);color:#fff;border-radius:11px;padding:14px;font-weight:600;font-size:15.5px;transition:all .15s}
+.propose:active{background:var(--deal-dark)}
+.propose:disabled{background:var(--line);color:var(--ink-soft)}
+.propose.sec{background:var(--card);color:var(--deal-dark);border:1.5px solid var(--deal)}
+
+/* DASHBOARD */
+.debt{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.debt:last-child{border-bottom:none}
+.debt .dl{font-weight:500;font-size:14.5px}
+.debt .ds{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.st{font-size:11px;font-weight:600;padding:2.5px 8px;border-radius:6px;white-space:nowrap;flex:none}
+.st-half{background:#FDF3DA;color:#8A6510}
+.st-wait{background:#EEF0EE;color:var(--ink-soft)}
+.ringcard{background:var(--card);border:1.5px solid var(--xp);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:0 6px 22px rgba(223,169,40,.14)}
+.ringtitle{font-weight:600;font-size:15.5px;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ringrow{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px}
+.ringrow .mini{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;color:#fff}
+.ringrow .arr{color:var(--xp);font-family:'JetBrains Mono',monospace;font-weight:700}
+.matchcard{background:var(--card);border:1.5px solid var(--remote);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:0 6px 22px rgba(59,110,165,.14)}
+.mrow{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px}
+.mrow .mini{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;color:#fff}
+.mrow .marr{color:var(--remote);font-family:'JetBrains Mono',monospace;font-weight:700}
+.invn{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:var(--deal-dark)}
+.slot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.slot:last-child{border-bottom:none}
+.slot .taken{color:var(--ink-soft);font-size:12.5px}
+.slotbtn{background:var(--deal);color:#fff;border-radius:8px;padding:7px 13px;font-weight:600;font-size:13px;flex:none}
+.ptype{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:6px}
+.pt-ex{background:#EAF0F7;color:var(--remote)}
+.pt-vol{background:#E3F0E9;color:var(--deal-dark)}
+.prog{height:7px;background:var(--paper);border-radius:99px;overflow:hidden;margin-top:10px}
+.prog i{display:block;height:100%;background:var(--deal);border-radius:99px}
+
+/* CHAT */
+.chathead{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.chatmeta{flex:1;min-width:0}
+.chatname{font-weight:600;font-size:15px}
+.chatdeal{font-size:11.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stpill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#EAF0F7;color:var(--remote);white-space:nowrap}
+.chatwrap{display:flex;flex-direction:column;flex:1;max-width:640px;width:100%;margin:0 auto;padding:0 16px}
+.msgs{flex:1;display:flex;flex-direction:column;gap:10px;padding:16px 0}
+.bub{max-width:78%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.4}
+.bub.them{background:var(--card);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+.bub.me{background:var(--deal);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.tplcard{max-width:86%;background:var(--card);border:1.5px solid var(--deal);border-radius:12px;padding:11px 13px;font-size:13.5px;line-height:1.4}
+.tplcard.them{align-self:flex-start}
+.tplcard.me{align-self:flex-end;border-color:var(--dealD);background:var(--dealL)}
+.tplcard .tl{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--deal);margin-bottom:4px}
+.tplbtns{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.tplbtns button{background:var(--deal);color:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600}
+.tplbtns button.sec{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+.safety{max-width:92%;align-self:center;background:var(--card);border:1.5px solid var(--remote);border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+.safety .st1{font-weight:700;color:var(--remote);margin-bottom:4px;font-size:12.5px}
+.safety .shrow{display:flex;gap:7px;margin-top:9px}
+.safety input{flex:1;min-width:0;border:1px solid var(--remote);border-radius:8px;padding:7px 11px;font-family:inherit;font-size:12.5px;background:var(--card);outline:none;color:var(--ink)}
+.safety button{background:var(--remote);border:none;color:#fff;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:600;flex:none}
+.safety .shared{margin-top:9px;color:var(--deal);font-weight:600;font-size:12px}
+.sysmsg{align-self:center;text-align:center;font-size:11.5px;color:var(--ink-soft);background:var(--card);border:1px dashed var(--line);border-radius:999px;padding:5px 14px;max-width:92%}
+.sysmsg.warn{color:#8A6510;border-color:var(--xp);background:var(--goldL,#FDF6E1)}
+.chatbar{position:sticky;bottom:76px;background:var(--paper);padding:8px 0 6px;border-top:1px solid var(--line)}
+.tplchips{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.tplchips::-webkit-scrollbar{display:none}
+.tplchip{flex:none;background:var(--dealL);border:1px solid var(--deal);color:var(--dealD);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600}
+.freerow{display:flex;gap:8px}
+.freerow input{flex:1;border:1.5px solid var(--line);border-radius:999px;padding:10px 15px;font-family:inherit;font-size:14px;background:var(--card);outline:none;min-width:0;color:var(--ink)}
+.freerow input:focus{border-color:var(--deal)}
+.sendbtn{width:42px;height:42px;border-radius:50%;background:var(--deal);color:#fff;font-size:18px;font-weight:700;flex:none}
+
+.toast{
+  position:fixed;bottom:86px;left:50%;transform:translate(-50%,80px);
+  background:var(--ink);color:#fff;border-radius:12px;padding:13px 20px;font-size:14.5px;
+  opacity:0;transition:all .3s;z-index:99;max-width:calc(100% - 40px);text-align:center;
+}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.demobar{
+  position:fixed;top:0;left:0;right:0;z-index:60;background:var(--ink);color:#fff;
+  font-size:12px;padding:7px 14px;display:flex;align-items:center;justify-content:center;
+  gap:12px;flex-wrap:wrap;text-align:center;
+}
+.demobar a{color:#A8E6C3;text-decoration:none;font-weight:600}
+.demobar button{color:#fff;text-decoration:underline;font-size:12px;opacity:.85}
+body{padding-top:34px}
+.langsw{top:42px}
+.philo{max-width:520px;margin:0 auto 28px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.philoline{font-size:13.5px;color:var(--ink-soft);padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px;line-height:1.45}
+.philoline b{color:var(--deal-dark);font-weight:600}
+.screenhead{
+  position:sticky;top:34px;z-index:9;background:var(--paper);border-bottom:1px solid var(--line);
+  padding:14px 16px;font-family:'Unbounded',sans-serif;font-weight:500;font-size:17px;
+}
+.mystatus{cursor:pointer;transition:opacity .15s}
+.mystatus:hover{opacity:.75}
+.bnote.eqwarn{color:#8A6510;background:var(--goldL);padding:10px 12px;border-radius:8px;margin-top:10px}
+.modalov{
+  position:fixed;inset:0;z-index:100;background:rgba(23,37,31,.45);display:none;
+  align-items:center;justify-content:center;padding:20px;
+}
+.modalov.open{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:20px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(23,37,31,.18)}
+.modal p{font-size:14.5px;line-height:1.5;margin-bottom:16px}
+.modalacts{display:flex;gap:10px}
+.modalacts button{flex:1;padding:12px;border-radius:10px;font-weight:600;font-size:14px}
+.modalacts .yes{background:var(--deal);color:#fff}
+.modalacts .no{background:var(--paper);border:1px solid var(--line);color:var(--ink)}
+.st-fixed{background:#E3F0E9;color:var(--deal-dark)}
+.st-exec{background:#EAF0F7;color:var(--remote)}
+.st-quits{background:var(--deal);color:#fff}
+.dealnum{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--deal-dark)}
+.ratingpick{display:flex;gap:6px;margin-top:10px}
+.ratingpick button{font-size:18px;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--paper)}
+.ratingpick button.on{background:var(--goldL);border-color:var(--xp)}
+.skillslist{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.skilltag{background:var(--dealL);color:var(--dealD);padding:6px 11px;border-radius:999px;font-size:13px;font-weight:500}
+.needtag{background:#EAF0F7;color:var(--remote);padding:6px 11px;border-radius:999px;font-size:13px;font-weight:500}
+.btnrow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btnrow button{flex:1;min-width:120px;padding:12px;border-radius:10px;font-weight:600;font-size:14px}
+.btn-pause{background:var(--paper);border:1.5px solid var(--line);color:var(--ink)}
+.btn-resume{background:var(--deal);color:#fff}
+.pausedbanner{background:#F7E7E2;color:var(--danger);padding:12px 16px;border-radius:10px;font-size:13.5px;margin-bottom:14px;text-align:center}
+@media (max-width:480px){.toprow{padding-right:0;flex-wrap:wrap}.langsw{top:38px;right:8px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="demobar" id="demobar"></div>
+
+<div class="langsw">
+  <button id="lru" class="on" onclick="setLang('ru')">RU</button>
+  <button id="len" onclick="setLang('en')">EN</button>
+  <button id="les" onclick="setLang('es')">ES</button>
+</div>
+
+<div class="screen active" id="home">
+  <div class="logo" id="biglogo"></div>
+  <div class="tagline" id="tagline"></div>
+  <div class="philo" id="philo"></div>
+  <div class="searchwrap">
+    <form class="searchbar" onsubmit="goSearch(event)">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9AA8A0" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="text" autocomplete="off">
+      <button class="go" type="submit" id="gobtn"></button>
+    </form>
+  </div>
+  <div class="cloudlbl" id="cloudlbl"></div>
+  <div class="cloud" id="cloud"></div>
+  <div class="mystatus" id="mystatus" onclick="openMe()" title=""></div>
+</div>
+
+<div class="screen" id="me">
+  <div class="pbar">
+    <button class="back" onclick="show('home')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span id="meback"></span>
+    </button>
+  </div>
+  <div class="pbody" id="mebody"></div>
+</div>
+
+<div class="screen" id="results">
+  <div class="topbar">
+    <div class="toprow">
+      <button class="minilogo" id="minilogo" onclick="show('home')"></button>
+      <form class="searchbar compact" onsubmit="refresh(event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA8A0" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="q2" type="text" autocomplete="off">
+      </form>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="morefilters" id="morefilters"></div>
+  <div class="resmeta"><span id="rescount"></span><span id="resgeo"></span></div>
+  <div class="reslist" id="reslist"></div>
+</div>
+
+<div class="screen" id="profile">
+  <div class="pbar">
+    <button class="back" onclick="show('results')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span id="backlbl"></span>
+    </button>
+  </div>
+  <div class="pbody" id="pbody"></div>
+</div>
+
+<div class="screen" id="projects">
+  <div class="screenhead" id="projhead"></div>
+  <div class="pbody" id="projbody" style="padding-top:0"></div>
+</div>
+<div class="screen" id="dash">
+  <div class="screenhead" id="dashhead"></div>
+  <div class="pbody" id="dashbody" style="padding-top:0"></div>
+</div>
+
+<div class="screen" id="chat">
+  <div class="chathead">
+    <button class="back" onclick="show('dash')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="ava" id="chatava" style="background:#2E7D5B;width:38px;height:38px;font-size:14px"></div>
+    <div class="chatmeta">
+      <div class="chatname" id="chatname"></div>
+      <div class="chatdeal" id="chatdeal"></div>
+    </div>
+    <span class="stpill" id="chatst"></span>
+  </div>
+  <div class="chatwrap">
+    <div class="msgs" id="msgs"></div>
+    <div class="chatbar">
+      <div class="tplchips" id="tplchips"></div>
+      <div class="freerow">
+        <input id="freetxt" type="text" onkeydown="if(event.key==='Enter')sendFree()">
+        <button class="sendbtn" onclick="sendFree()">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button id="nav-home" class="on" onclick="navTo('home')"><span class="ic">🔍</span><span id="nl1"></span></button>
+  <button id="nav-projects" onclick="navTo('projects')"><span class="ic">🤝</span><span id="nl2"></span></button>
+  <button id="nav-dash" onclick="navTo('dash')"><span class="ic">⇄</span><span id="nl3"></span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modalov" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <p id="modaltext"></p>
+    <div class="modalacts">
+      <button class="no" id="modalno" onclick="closeModal()"></button>
+      <button class="yes" id="modalyes"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONFIG={debtLimit:2,debtDays:14,draftDays:7};
+
+const T = {
+ru:{
+  logo:'кви<span class="swap">⇄</span>ты', mini:'к<span class="swap">⇄</span>',
+  tagline:'Где умениям нет цены.',
+  demobar:'Интерактивный прототип · ',
+  demoreset:'сбросить демо',
+  tglink:'Telegram-бот',
+  philo:['Меняйтесь <b>умениями</b> — без денег и без валюты.','<b>Час</b> — единица учёта, не актив: его нельзя копить и передавать.','Закрыли обмен — вы <b>квиты</b>.'],
+  statusFree:'Вы свободны · долги <span class="mono">{debts}/{limit}</span> · <span class="mono">240 XP</span> · <span class="karma k-high">☯ карма высокая</span>',
+  statusPaused:'Профиль на паузе · нажмите, чтобы вернуться',
+  meback:'На главную',
+  meTitle:'Мой профиль',
+  mySkills:'Умею',
+  myNeeds:'Нужно',
+  closedDeals:'Закрытых сделок',
+  btnPause:'⏸ Пауза',
+  btnResume:'▶️ Снять паузу',
+  pausedBanner:'Профиль на паузе — вас не видят в поиске и реестре.',
+  modalNo:'Отмена',
+  modalYes:'Да, отправить',
+  dealNum:'Сделка #8',
+  tplConfirmRecv:'✅ Подтверждаю, услугу получил(а)',
+  confirmReceived:'Услуга получена. Долг зафиксирован до закрытия второй стороны.',
+  sysHalfDone:'Одна услуга оказана — возник долг. Закройте обмен, когда обе стороны выполнят условия.',
+  ratePartner:'Оцените партнёра:',
+  ph:'Что вам нужно?', go:'Найти',
+  cloudlbl:'Чем меняются рядом с вами',
+  mystatus:'',
+  karma:{high:'☯ карма высокая',norm:'☯ карма обычная',low:'☯ карма низкая'},
+  nav:['Поиск','Проекты','Мои квиты'],
+  back:'К результатам',
+  found:(n,q)=>`Найдено: ${n} · «${q}»`,
+  geo:'Самара · весь город',
+  chips:{near:'📍 Рядом',free:'🟢 Свободен сейчас',verified:'✓ Проверенный навык',remote:'💻 Удалённо',mentor:'🎓 Обучение',more:'⚙ Ещё фильтры'},
+  frows:[
+    {l:'Радиус поиска',o:['Мой район','Весь город','Вся страна (удалённо)'],d:1},
+    {l:'Зрелость навыка',o:['Любая','Подтверждён+','Только проверен'],d:0},
+    {l:'Эквивалент, часов за сделку',o:['Любой','До 2 ч','До 5 ч'],d:0},
+  ],
+  yourHours:'ваши часы', h:'ч', deals:'сделок', inCity:'в вашем городе',
+  firstDeal:'Первая сделка — примите риск осознанно',
+  empty:'Никого не нашлось. Попробуйте расширить радиус — или, может, кто-то готов обучить местного? 🎓',
+  stats:{q:'качество',t:'в срок',d:'сделок',c:'отмены'},
+  maturity:'Зрелость навыка', steps:['Заявлен','Подтверждён','Проверен'],
+  newbieNote:'⚠ Навык не подтверждён — сделка пойдёт с меткой «доверие новичку», вам начислится бонусный XP.',
+  recovery:'<b>Recovery-режим.</b> Карма низкая: доступна 1 реабилитационная сделка за раз, с явной пометкой. Партнёр получит бонус кармы «за второй шанс», успешное закрытие восстановит карму быстрее.',
+  proposeTitle:'Предложить обмен', yourTerms:'Ваши условия',
+  toYou:(n)=>`${n} — вам`, fromYou:(n)=>`Вы — ${n}`,
+  eqOk:'✓ Обмен равный по времени. Эквивалент зафиксируется до начала исполнения — потом цифру не изменить.',
+  eqWarn:(t,m)=>`⚖ Обмен неравный по времени (${t} ч ⇄ ${m} ч). Это ваше право — ценность определяете вы, а не система. Уверены?`,
+  cancelNote:'🔓 До начала исполнения отмена свободная. Ваш лимит долгов: 1/2 — слот есть.',
+  proposeBtn:'Предложить обмен', proposeRecov:'Предложить реабилитационную сделку',
+  toast:(n)=>`Заявка отправлена. ${n} получит уведомление — статус сделки: Черновик`,
+  dTitle:'Мои квиты',
+  dRing:'Обнаружено кольцо взаимозачёта',
+  ringRows:[['Вы','Аня · урок гитары · 1 ч','var(--deal)'],['А','Борис · английский · 1 ч','#B4543C'],['Б','вы · настройка ПК · 1 ч','#3B6EA5']],
+  dRingNote:'Три долга закроются одним зачётом. Никаких переводов — встречные обязательства зачтутся. Нужно согласие всех троих.',
+  dRingBtn:'Согласиться на зачёт', dRingWait:'Вы согласились · ждём Бориса (2/3)',
+  dRingToast:'Согласие учтено. Кольцо закроется автоматически, когда подтвердит Борис · +XP за участие в кольце',
+  dDebts:'Активные обязательства',
+  dMyDebt:'Вы должны Ане: урок гитары · 1 ч', dMyDebtS:'Полуисполнена · осталось 11 дней',
+  dInDebt:'Борис должен вам: настройка ПК · 1 ч', dInDebtS:'Полуисполнена · вы уже оказали услугу',
+  dDraft:'Заявка Игорю М.: настройка роутера 2 ч ⇄ переезд 2 ч', dDraftS:'Черновик · истечёт через 7 дней',
+  stHalf:'Полуисполнена', stDraft:'Черновик',
+  dLimit:'Лимит долгов: <span class="mono">1/2</span> · срок жизни долга 14 дней · draft без ответа — 7 дней',
+  dInv:'Инвайты', dInvNote:'Приглашение — это поручительство: если приглашённый уличён в мошенничестве, ваша карма пострадает. Награда — за активацию: часть XP за первую сделку приглашённого, остаток — когда его навык подтверждён. ×1.5 XP за приглашённого в вашем городе.',
+  dInvBtn:'Отправить инвайт', dInvToast:'Инвайт отправлен · осталось 2 · вы поручились за приглашённого',
+  dXpNote:'До уровня «Проверенный» (лимит 5, кольца, организация проектов): 3 сделки или 1 сделка + 1 доведённый новичок',
+  dMatch:'Взаимный матч найден',
+  dMatchNote:'Ваши «что нужно» и «что умею» совпали крест-накрест. Система знакомит только при взаимном интересе.',
+  dMatch1:'Вера ищет: ремонт велосипедов — это ваш навык',
+  dMatch2:'Вы искали: компьютерная помощь — это её навык',
+  dMatchBtn:'Предложить обмен Вере',dMatchSent:'Предложение отправлено · ждём Веру',
+  dMatchToast:'Вера получила предложение: ремонт велосипеда 1 ч ⇄ компьютерная помощь 1 ч. Согласится — откроется чат сделки',
+  dMatchXp:'первая сделка Веры · +XP за доверие новичку',
+  pTitle:'Групповые проекты',
+  pEx:'Обменный', pVol:'Общественный',
+  p1name:'Сайт для приюта «Хвосты»', p1org:'Организатор: Алина С. · статус: Набор',
+  p1note:'Долг организатора перед каждым участником — отдельное обязательство из проектного пула. Внутри команды работают кольца.',
+  slots:'Роли-слоты',
+  s1:'🎨 Дизайнер · 5 ч', s1v:'занято · Игорь М.',
+  s2:'🧱 Верстальщик · 8 ч', s3:'✍️ Копирайтер · 3 ч',
+  takeSlot:'Занять слот', taken:'Занято', you:'вы',
+  slotToast:'Слот «Верстальщик · 8 ч» ваш! Эквивалент зафиксирован. Подтверждение «квиты» будет отдельным для вашей пары с организатором',
+  p2name:'Субботник в парке Гагарина', p2org:'Организатор: Дмитрий К. · сб, 10:00',
+  p2note:'Общественный проект: долги не возникают. Награда — XP + карма (вклад в сообщество), ×2 за локальную акцию. Участие подтверждается взаимно.',
+  joined:(a,b)=>`Участников: ${a}/${b}`,
+  joinBtn:'Участвовать', joinToast:'Вы записались на субботник · +XP и карма после взаимного подтверждения участия',
+  orgNote:'Организация проектов открывается уровнем «Проверенный», общественных — высокой кармой.',
+  chatDeal:'настройка роутера 2 ч ⇄ переезд 2 ч',
+  chatSt:{neg:'Согласование',fix:'Зафиксирована',exec:'Исполняется',del:'Полуисполнена',quits:'Квиты'},
+  cardTl:'Шаблон-действие',
+  chatHint:'Договорённости фиксируйте карточками — только они защищают вас в споре. Свободный текст — для деталей.',
+  igorOffer:'Предлагаю условия: настройка роутера · 2 ч ⇄ помощь с переездом · 2 ч',
+  igorFree:'Привет! Роутер какой модели? Возьму нужный кабель.',
+  acceptBtn:'Принять',counterBtn:'Встречное',counterToast:'В демо доступно принятие условий — встречное предложение откроет те же поля часов',
+  accepted:'✓ Условия приняты: 2 ч ⇄ 2 ч. Эквивалент заморожен.',
+  sysFixed:'Сделка зафиксирована. До начала исполнения отмена свободная.',
+  tplTime:'🕐 Предложить время',timeProposal:'Предлагаю время: суббота, 12:00',
+  tplPlace:'📍 Предложить место',placeProposal:'Предлагаю место: кофейня «Зерно» (публичное место)',
+  themOk:'Отлично, подходит 👍',
+  tplStart:'▶ Приступаю к исполнению',startCard:'Приступаю к исполнению',
+  sysExec:'Исполнение началось — свободная отмена закрыта, дальше только через спор.',
+  igorDone:'Готово! Роутер настроен, пароль сменил.',
+  deliveredCard:'Услуга оказана — подтвердите',
+  tplQuits:'✓ Подтверждаю — мы квиты',quitsCard:'Подтверждаю — мы квиты · оценка ★5',
+  sysQuits:'Вы квиты! XP начислен обоим. Чат закрыт и сохранён как квитанция сделки.',
+  tplDispute:'⚖ Открыть спор',disputeToast:'Спор: доделка или взаимная отмена — арбитраж опирается на карточки, не на переписку',
+  bypassWarn:'⚠ Похоже на телефон или мессенджер. Сделки вне платформы не защищены кармой и арбитражем.',
+  inputPh:'Свободный текст — для деталей…',
+  safetyTitle:'🛡 Безопасная встреча',
+  safetyTxt:'Встречайтесь в публичных местах. Плохое предчувствие — отменяйте без объяснений: до начала исполнения отмена свободная и не влияет на карму.',
+  shareBtn:'Поделиться сделкой с близким',
+  sharePh:'Телефон близкого, напр. +7 912 …',
+  shareSend:'Отправить',
+  shareSms:(ph)=>`SMS на ${ph}: «Я на обмене Квиты: настройка роутера · сб 12:00 · кофейня "Зерно" · партнёр Игорь М. (☯ карма высокая, 27 сделок) · профиль: kvity.app/d/8F3K»`,
+  shareDone:'✓ Близкий в курсе встречи',
+  shareToast:'SMS с данными встречи отправлено. Если сделка изменится или отменится — близкому уйдёт обновление',
+  shareErr:'Введите номер телефона',
+  safetyBuilder:'🛡 Физическая услуга: встреча в публичном месте, сделкой можно поделиться с близким. Подтверждение «встречались лично» — взаимное.',
+},
+en:{
+  logo:'qui<span class="swap">⇄</span>ts', mini:'q<span class="swap">⇄</span>',
+  tagline:'Where skills are priceless.',
+  demobar:'Interactive prototype · ',
+  demoreset:'reset demo',
+  tglink:'Telegram bot',
+  philo:['Trade <b>skills</b> — no money, no currency.','An <b>hour</b> is a unit of account, not an asset — you can\'t hoard or transfer it.','When the exchange is closed — you\'re <b>quits</b>.'],
+  statusFree:'You are available · debts <span class="mono">{debts}/{limit}</span> · <span class="mono">240 XP</span> · <span class="karma k-high">☯ high karma</span>',
+  statusPaused:'Profile paused · tap to resume',
+  meback:'Home', meTitle:'My profile', mySkills:'Skills', myNeeds:'Needs',
+  closedDeals:'Closed deals', btnPause:'⏸ Pause', btnResume:'▶️ Resume',
+  pausedBanner:'Profile paused — you\'re hidden from search.',
+  modalNo:'Cancel', modalYes:'Yes, send',
+  dealNum:'Deal #8',
+  tplConfirmRecv:'✅ Confirm — service received',
+  confirmReceived:'Service confirmed. Debt recorded until the other side completes.',
+  sysHalfDone:'One service delivered — a debt was created. Close the exchange when both sides are done.',
+  ratePartner:'Rate your partner:',
+  ph:'What do you need?', go:'Search',
+  cloudlbl:'What people trade near you',
+  mystatus:'',
+  karma:{high:'☯ high karma',norm:'☯ normal karma',low:'☯ low karma'},
+  nav:['Search','Projects','My quits'],
+  back:'Back to results',
+  found:(n,q)=>`Found: ${n} · “${q}”`,
+  geo:'Samara · whole city',
+  chips:{near:'📍 Nearby',free:'🟢 Available now',verified:'✓ Verified skill',remote:'💻 Remote',mentor:'🎓 Teaching',more:'⚙ More filters'},
+  frows:[
+    {l:'Search radius',o:['My neighborhood','Whole city','Whole country (remote)'],d:1},
+    {l:'Skill maturity',o:['Any','Confirmed+','Verified only'],d:0},
+    {l:'Equivalent, hours per deal',o:['Any','Up to 2 h','Up to 5 h'],d:0},
+  ],
+  yourHours:'your hours', h:'h', deals:'deals', inCity:'in your city',
+  firstDeal:'First deal — accept the risk consciously',
+  empty:'Nobody found. Try a wider radius — or maybe someone could train a local? 🎓',
+  stats:{q:'quality',t:'on time',d:'deals',c:'cancels'},
+  maturity:'Skill maturity', steps:['Declared','Confirmed','Verified'],
+  newbieNote:'⚠ Unconfirmed skill — the deal will carry a “trusting a newcomer” label, you\'ll get bonus XP.',
+  recovery:'<b>Recovery mode.</b> Karma is low: 1 rehabilitation deal at a time, explicitly labeled. The partner gets a "second chance" karma bonus; successful closure restores karma faster.',
+  proposeTitle:'Propose an exchange', yourTerms:'Your terms',
+  toYou:(n)=>`${n} — to you`, fromYou:(n)=>`You — to ${n}`,
+  eqOk:'✓ Equal in time. The equivalent locks before execution starts — the number can\'t change after.',
+  eqWarn:(t,m)=>`⚖ Unequal in time (${t} h ⇄ ${m} h). That\'s your right — value is set by you, not the system. Sure?`,
+  cancelNote:'🔓 Cancellation is free until execution starts. Your debt limit: 1/2 — a slot is open.',
+  proposeBtn:'Propose exchange', proposeRecov:'Propose a rehabilitation deal',
+  toast:(n)=>`Request sent. ${n} will be notified — deal status: Draft`,
+  dTitle:'My quits',
+  dRing:'Netting ring detected',
+  ringRows:[['You','Anya · guitar lesson · 1 h','var(--deal)'],['A','Boris · English · 1 h','#B4543C'],['B','you · PC setup · 1 h','#3B6EA5']],
+  dRingNote:'Three debts close in one netting. No transfers — mutual obligations offset each other. All three must agree.',
+  dRingBtn:'Agree to netting', dRingWait:'You agreed · waiting for Boris (2/3)',
+  dRingToast:'Agreement recorded. The ring will close automatically once Boris confirms · +XP for ring participation',
+  dDebts:'Active obligations',
+  dMyDebt:'You owe Anya: guitar lesson · 1 h', dMyDebtS:'Half-complete · 11 days left',
+  dInDebt:'Boris owes you: PC setup · 1 h', dInDebtS:'Half-complete · you already delivered',
+  dDraft:'Request to Igor M.: router setup 2 h ⇄ moving 2 h', dDraftS:'Draft · expires in 7 days',
+  stHalf:'Half-complete', stDraft:'Draft',
+  dLimit:'Debt limit: <span class="mono">1/2</span> · debt lifetime 14 days · draft expires in 7 days',
+  dInv:'Invites', dInvNote:'An invitation is vouching: if the invitee is caught in fraud, your karma suffers. Reward is for activation: part of the XP for the invitee\'s first deal, the rest when their skill is confirmed. ×1.5 XP for an invitee in your city.',
+  dInvBtn:'Send invite', dInvToast:'Invite sent · 2 left · you vouched for the invitee',
+  dXpNote:'To the "Verified" level (limit 5, rings, organizing projects): 3 deals or 1 deal + 1 newcomer seen through',
+  dMatch:'Mutual match found',
+  dMatchNote:'Your "what I need" and "what I can do" crossed over. The system introduces people only on mutual interest.',
+  dMatch1:'Vera is looking for: bike repair — that\'s your skill',
+  dMatch2:'You were looking for: computer help — that\'s her skill',
+  dMatchBtn:'Propose an exchange to Vera',dMatchSent:'Proposal sent · waiting for Vera',
+  dMatchToast:'Vera received the proposal: bike repair 1 h ⇄ computer help 1 h. If she accepts — the deal chat opens',
+  dMatchXp:'Vera\'s first deal · +XP for trusting a newcomer',
+  pTitle:'Group projects',
+  pEx:'Exchange', pVol:'Community',
+  p1name:'Website for the "Tails" shelter', p1org:'Organizer: Alina S. · status: Staffing',
+  p1note:'The organizer\'s debt to each participant is a separate obligation from the project pool. Rings work inside the team.',
+  slots:'Role slots',
+  s1:'🎨 Designer · 5 h', s1v:'taken · Igor M.',
+  s2:'🧱 Layout dev · 8 h', s3:'✍️ Copywriter · 3 h',
+  takeSlot:'Take slot', taken:'Taken', you:'you',
+  slotToast:'The "Layout dev · 8 h" slot is yours! Equivalent locked. The "quits" confirmation will be separate for your pair with the organizer',
+  p2name:'Cleanup at Gagarin Park', p2org:'Organizer: Dmitry K. · Sat, 10:00',
+  p2note:'A community project: no debts arise. Reward — XP + karma (community contribution), ×2 for a local event. Participation is mutually confirmed.',
+  joined:(a,b)=>`Participants: ${a}/${b}`,
+  joinBtn:'Join', joinToast:'You signed up for the cleanup · +XP and karma after mutual confirmation of participation',
+  orgNote:'Organizing projects unlocks at the "Verified" level; community ones require high karma.',
+  chatDeal:'router setup 2 h ⇄ moving 2 h',
+  chatSt:{neg:'Negotiation',fix:'Fixed',exec:'In progress',del:'Half-complete',quits:'Quits'},
+  cardTl:'Template action',
+  chatHint:'Lock agreements with cards — only they protect you in a dispute. Free text is for details.',
+  igorOffer:'Proposing terms: router setup · 2 h ⇄ moving help · 2 h',
+  igorFree:'Hi! What router model is it? I\'ll bring the right cable.',
+  acceptBtn:'Accept',counterBtn:'Counter',counterToast:'The demo supports accepting — a counter-offer opens the same hour fields',
+  accepted:'✓ Terms accepted: 2 h ⇄ 2 h. Equivalent frozen.',
+  sysFixed:'Deal fixed. Cancellation stays free until execution starts.',
+  tplTime:'🕐 Propose a time',timeProposal:'Proposing a time: Saturday, 12:00',
+  tplPlace:'📍 Propose a place',placeProposal:'Proposing a place: "Zerno" café (public place)',
+  themOk:'Great, works for me 👍',
+  tplStart:'▶ Starting execution',startCard:'Starting execution',
+  sysExec:'Execution started — free cancellation is closed, disputes only from here.',
+  igorDone:'Done! Router set up, password changed.',
+  deliveredCard:'Service delivered — please confirm',
+  tplQuits:'✓ Confirming — we\'re quits',quitsCard:'Confirming — we\'re quits · rating ★5',
+  sysQuits:'You\'re quits! XP granted to both. Chat closed and saved as the deal receipt.',
+  tplDispute:'⚖ Open a dispute',disputeToast:'Dispute: rework or mutual annulment — arbitration relies on cards, not on the chat log',
+  bypassWarn:'⚠ Looks like a phone number or messenger. Deals outside the platform aren\'t protected by karma or arbitration.',
+  inputPh:'Free text — for the details…',
+  safetyTitle:'🛡 Safe meeting',
+  safetyTxt:'Meet in public places. Bad feeling? Cancel without explanations: before execution starts, cancellation is free and doesn\'t affect karma.',
+  shareBtn:'Share the deal with someone you trust',
+  sharePh:'Their phone, e.g. +1 415 …',
+  shareSend:'Send',
+  shareSms:(ph)=>`SMS to ${ph}: "I'm on a Quits exchange: router setup · Sat 12:00 · Zerno café · partner Igor M. (☯ high karma, 27 deals) · profile: kvity.app/d/8F3K"`,
+  shareDone:'✓ Your person knows about the meeting',
+  shareToast:'SMS with the meeting details sent. If the deal changes or gets cancelled — they\'ll get an update',
+  shareErr:'Enter a phone number',
+  safetyBuilder:'🛡 Physical service: meet in a public place; you can share the deal with someone you trust. The "met in person" confirmation is mutual.',
+},
+es:{
+  logo:'a ma<span class="swap">⇄</span>no', mini:'a<span class="swap">⇄</span>',
+  tagline:'Donde las habilidades no tienen precio.',
+  demobar:'Prototipo interactivo · ',
+  demoreset:'reiniciar demo',
+  tglink:'Bot de Telegram',
+  philo:['Intercambiá <b>habilidades</b> — sin dinero ni moneda.','La <b>hora</b> es unidad de cuenta, no un activo: no se acumula ni se transfiere.','Cerraron el intercambio — están <b>a mano</b>.'],
+  statusFree:'Disponible · deudas <span class="mono">{debts}/{limit}</span> · <span class="mono">240 XP</span> · <span class="karma k-high">☯ karma alto</span>',
+  statusPaused:'Perfil en pausa · tocá para volver',
+  meback:'Inicio', meTitle:'Mi perfil', mySkills:'Sé hacer', myNeeds:'Necesito',
+  closedDeals:'Tratos cerrados', btnPause:'⏸ Pausa', btnResume:'▶️ Reanudar',
+  pausedBanner:'Perfil en pausa — no aparecés en la búsqueda.',
+  modalNo:'Cancelar', modalYes:'Sí, enviar',
+  dealNum:'Trato #8',
+  tplConfirmRecv:'✅ Confirmo — recibí el servicio',
+  confirmReceived:'Servicio confirmado. Deuda registrada hasta que la otra parte cumpla.',
+  sysHalfDone:'Un servicio prestado — se creó una deuda. Cierren el intercambio cuando ambos cumplan.',
+  ratePartner:'Calificá a tu compañero:',
+  ph:'¿Qué necesitás?', go:'Buscar',
+  cloudlbl:'Qué se intercambia cerca tuyo',
+  mystatus:'',
+  karma:{high:'☯ karma alto',norm:'☯ karma normal',low:'☯ karma bajo'},
+  nav:['Buscar','Proyectos','Mis tratos'],
+  back:'A los resultados',
+  found:(n,q)=>`Encontrados: ${n} · «${q}»`,
+  geo:'Rosario · toda la ciudad',
+  chips:{near:'📍 Cerca',free:'🟢 Disponible ahora',verified:'✓ Habilidad verificada',remote:'💻 Remoto',mentor:'🎓 Enseñanza',more:'⚙ Más filtros'},
+  frows:[
+    {l:'Radio de búsqueda',o:['Mi barrio','Toda la ciudad','Todo el país (remoto)'],d:1},
+    {l:'Madurez de la habilidad',o:['Cualquiera','Confirmada+','Solo verificada'],d:0},
+    {l:'Equivalente, horas por trato',o:['Cualquiera','Hasta 2 h','Hasta 5 h'],d:0},
+  ],
+  yourHours:'tus horas', h:'h', deals:'tratos', inCity:'en tu ciudad',
+  firstDeal:'Primer trato — aceptá el riesgo conscientemente',
+  empty:'No encontramos a nadie. Probá ampliar el radio — ¿o quizás alguien puede enseñarle a un local? 🎓',
+  stats:{q:'calidad',t:'a tiempo',d:'tratos',c:'cancelac.'},
+  maturity:'Madurez de la habilidad', steps:['Declarada','Confirmada','Verificada'],
+  newbieNote:'⚠ Habilidad no confirmada — el trato llevará la marca «confianza al novato» y recibirás XP extra.',
+  recovery:'<b>Modo Recovery.</b> Karma bajo: 1 trato de rehabilitación a la vez, con marca explícita. El compañero recibe un bono de karma «por la segunda oportunidad»; cerrarlo con éxito restaura el karma más rápido.',
+  proposeTitle:'Proponer un intercambio', yourTerms:'Tus condiciones',
+  toYou:(n)=>`${n} — para vos`, fromYou:(n)=>`Vos — para ${n}`,
+  eqOk:'✓ Intercambio igual en tiempo. El equivalente se fija antes de empezar — después la cifra no se puede cambiar.',
+  eqWarn:(t,m)=>`⚖ Intercambio desigual en tiempo (${t} h ⇄ ${m} h). Es tu derecho — el valor lo definís vos, no el sistema. ¿Seguro?`,
+  cancelNote:'🔓 La cancelación es libre hasta que empiece la ejecución. Tu límite de deudas: 1/2 — hay lugar.',
+  proposeBtn:'Proponer intercambio', proposeRecov:'Proponer trato de rehabilitación',
+  toast:(n)=>`Solicitud enviada. ${n} recibirá una notificación — estado del trato: Borrador`,
+  dTitle:'Mis tratos',
+  dRing:'Anillo de compensación detectado',
+  ringRows:[['Vos','Ana · clase de guitarra · 1 h','var(--deal)'],['A','Boris · inglés · 1 h','#B4543C'],['B','vos · configuración de PC · 1 h','#3B6EA5']],
+  dRingNote:'Tres deudas se cierran con una sola compensación. Sin transferencias — las obligaciones mutuas se compensan. Los tres deben aceptar.',
+  dRingBtn:'Aceptar la compensación', dRingWait:'Aceptaste · esperando a Boris (2/3)',
+  dRingToast:'Aceptación registrada. El anillo se cerrará automáticamente cuando confirme Boris · +XP por participar en el anillo',
+  dDebts:'Obligaciones activas',
+  dMyDebt:'Le debés a Ana: clase de guitarra · 1 h', dMyDebtS:'Semicompletado · quedan 11 días',
+  dInDebt:'Boris te debe: configuración de PC · 1 h', dInDebtS:'Semicompletado · ya prestaste el servicio',
+  dDraft:'Solicitud a Igor M.: router 2 h ⇄ mudanza 2 h', dDraftS:'Borrador · vence en 7 días',
+  stHalf:'Semicompletado', stDraft:'Borrador',
+  dLimit:'Límite de deudas: <span class="mono">1/2</span> · vida de la deuda 14 días · borrador vence en 7 días',
+  dInv:'Invitaciones', dInvNote:'Invitar es avalar: si el invitado comete fraude, tu karma sufre. La recompensa es por activación: parte del XP por su primer trato, el resto cuando su habilidad se confirma. ×1.5 XP por un invitado en tu ciudad.',
+  dInvBtn:'Enviar invitación', dInvToast:'Invitación enviada · quedan 2 · avalaste al invitado',
+  dXpNote:'Hasta el nivel «Verificado» (límite 5, anillos, organizar proyectos): 3 tratos o 1 trato + 1 novato acompañado',
+  dMatch:'Match mutuo encontrado',
+  dMatchNote:'Tu «qué necesito» y tu «qué sé hacer» se cruzaron. El sistema presenta gente solo con interés mutuo.',
+  dMatch1:'Vera busca: arreglo de bicicletas — es tu habilidad',
+  dMatch2:'Vos buscabas: ayuda informática — es su habilidad',
+  dMatchBtn:'Proponerle un intercambio a Vera',dMatchSent:'Propuesta enviada · esperando a Vera',
+  dMatchToast:'Vera recibió la propuesta: arreglo de bici 1 h ⇄ ayuda informática 1 h. Si acepta — se abre el chat del trato',
+  dMatchXp:'primer trato de Vera · +XP por confiar en una novata',
+  pTitle:'Proyectos grupales',
+  pEx:'De intercambio', pVol:'Comunitario',
+  p1name:'Sitio web para el refugio «Colitas»', p1org:'Organiza: Alina S. · estado: Convocatoria',
+  p1note:'La deuda del organizador con cada participante es una obligación separada del pool del proyecto. Dentro del equipo funcionan los anillos.',
+  slots:'Roles',
+  s1:'🎨 Diseñador · 5 h', s1v:'ocupado · Igor M.',
+  s2:'🧱 Maquetador · 8 h', s3:'✍️ Redactor · 3 h',
+  takeSlot:'Tomar el rol', taken:'Ocupado', you:'vos',
+  slotToast:'¡El rol «Maquetador · 8 h» es tuyo! Equivalente fijado. La confirmación «a mano» será separada para tu par con el organizador',
+  p2name:'Limpieza del Parque Independencia', p2org:'Organiza: Dmitri K. · sáb, 10:00',
+  p2note:'Proyecto comunitario: no se generan deudas. Recompensa — XP + karma (aporte a la comunidad), ×2 por evento local. La participación se confirma mutuamente.',
+  joined:(a,b)=>`Participantes: ${a}/${b}`,
+  joinBtn:'Participar', joinToast:'Te anotaste a la limpieza · +XP y karma tras la confirmación mutua de participación',
+  orgNote:'Organizar proyectos se desbloquea con el nivel «Verificado»; los comunitarios requieren karma alto.',
+  chatDeal:'router 2 h ⇄ mudanza 2 h',
+  chatSt:{neg:'Negociación',fix:'Fijado',exec:'En ejecución',del:'Semicompletado',quits:'A mano'},
+  cardTl:'Acción-plantilla',
+  chatHint:'Fijá los acuerdos con tarjetas — solo ellas te protegen en una disputa. El texto libre es para los detalles.',
+  igorOffer:'Propongo condiciones: configurar router · 2 h ⇄ ayuda con mudanza · 2 h',
+  igorFree:'¡Hola! ¿Qué modelo de router es? Llevo el cable correcto.',
+  acceptBtn:'Aceptar',counterBtn:'Contraoferta',counterToast:'En la demo se puede aceptar — la contraoferta abre los mismos campos de horas',
+  accepted:'✓ Condiciones aceptadas: 2 h ⇄ 2 h. Equivalente congelado.',
+  sysFixed:'Trato fijado. La cancelación sigue libre hasta que empiece la ejecución.',
+  tplTime:'🕐 Proponer hora',timeProposal:'Propongo hora: sábado, 12:00',
+  tplPlace:'📍 Proponer lugar',placeProposal:'Propongo lugar: café «Zerno» (lugar público)',
+  themOk:'Perfecto, me va bien 👍',
+  tplStart:'▶ Empiezo la ejecución',startCard:'Empiezo la ejecución',
+  sysExec:'La ejecución comenzó — la cancelación libre se cerró; desde acá, solo disputa.',
+  igorDone:'¡Listo! Router configurado, contraseña cambiada.',
+  deliveredCard:'Servicio prestado — confirmá',
+  tplQuits:'✓ Confirmo — estamos a mano',quitsCard:'Confirmo — estamos a mano · calificación ★5',
+  sysQuits:'¡Están a mano! XP para ambos. El chat se cerró y quedó guardado como recibo del trato.',
+  tplDispute:'⚖ Abrir disputa',disputeToast:'Disputa: retrabajo o anulación mutua — el arbitraje se apoya en las tarjetas, no en la conversación',
+  bypassWarn:'⚠ Parece un teléfono o mensajero. Los tratos fuera de la plataforma no están protegidos por karma ni arbitraje.',
+  inputPh:'Texto libre — para los detalles…',
+  safetyTitle:'🛡 Encuentro seguro',
+  safetyTxt:'Encuéntrense en lugares públicos. ¿Mala sensación? Cancelá sin explicaciones: antes de empezar la ejecución, la cancelación es libre y no afecta el karma.',
+  shareBtn:'Compartir el trato con alguien de confianza',
+  sharePh:'Su teléfono, p. ej. +54 9 341 …',
+  shareSend:'Enviar',
+  shareSms:(ph)=>`SMS a ${ph}: «Estoy en un intercambio de A Mano: config. de router · sáb 12:00 · café Zerno · compañero Igor M. (☯ karma alto, 27 tratos) · perfil: kvity.app/d/8F3K»`,
+  shareDone:'✓ Tu persona ya sabe del encuentro',
+  shareToast:'SMS con los datos del encuentro enviado. Si el trato cambia o se cancela — le llegará una actualización',
+  shareErr:'Ingresá un número de teléfono',
+  safetyBuilder:'🛡 Servicio físico: encuentro en un lugar público; podés compartir el trato con alguien de confianza. La confirmación «nos vimos en persona» es mutua.',
+},
+};
+
+const CLOUD = [
+  {ru:'настройка компьютера',en:'computer setup',es:'configuración de PC',q:{ru:'настройка компьютера',en:'computer setup',es:'configuración de PC'},n:14,c:'t2'},
+  {ru:'английский',en:'English',es:'inglés',q:{ru:'английский язык',en:'English lessons',es:'clases de inglés'},n:23,c:'t1'},
+  {ru:'гитара',en:'guitar',es:'guitarra',q:{ru:'уроки гитары',en:'guitar lessons',es:'clases de guitarra'},n:3,c:'t4'},
+  {ru:'переезд',en:'moving help',es:'mudanzas',q:{ru:'помощь с переездом',en:'moving help',es:'ayuda con mudanza'},n:8,c:'t3'},
+  {ru:'ремонт великов',en:'bike repair',es:'arreglo de bicis',q:{ru:'ремонт велосипедов',en:'bike repair',es:'arreglo de bicicletas'},n:11,c:'t2'},
+  {ru:'выгул собак',en:'dog walking',es:'paseo de perros',q:{ru:'выгул собак',en:'dog walking',es:'paseo de perros'},n:4,c:'t4'},
+  {ru:'вёрстка',en:'web layout',es:'maquetación web',q:{ru:'вёрстка сайтов',en:'web layout',es:'maquetación web'},n:6,c:'t3'},
+  {ru:'математика · дефицит',en:'math tutoring · deficit',es:'matemática · déficit',q:{ru:'репетитор математики',en:'math tutor',es:'profe de matemática'},n:2,c:'t2 t-hot'},
+  {ru:'фотосъёмка',en:'photography',es:'fotografía',q:{ru:'фотосъёмка',en:'photography',es:'fotografía'},n:5,c:'t4'},
+  {ru:'выпечка',en:'baking',es:'repostería',q:{ru:'готовка и выпечка',en:'cooking and baking',es:'cocina y repostería'},n:9,c:'t2'},
+  {ru:'сантехника',en:'plumbing',es:'plomería',q:{ru:'сантехника',en:'plumbing',es:'plomería'},n:3,c:'t4'},
+  {ru:'дизайн',en:'design',es:'diseño',q:{ru:'дизайн логотипов',en:'logo design',es:'diseño de logos'},n:7,c:'t3'},
+];
+
+const ME = {
+  name:{ru:'Вы',en:'You',es:'Vos'},
+  skills:[
+    {ru:'Ремонт велосипедов',en:'Bike repair',es:'Arreglo de bicicletas',eq:1},
+    {ru:'Уроки гитары',en:'Guitar lessons',es:'Clases de guitarra',eq:1},
+    {ru:'Помощь с переездом',en:'Moving help',es:'Ayuda con mudanza',eq:2},
+  ],
+  needs:[
+    {ru:'Настройка компьютера',en:'Computer setup',es:'Configuración de PC'},
+    {ru:'Уроки английского',en:'English lessons',es:'Clases de inglés'},
+  ],
+  closedDeals:7,
+};
+
+const PEOPLE = [
+  {id:1,name:{ru:'Игорь М.',en:'Igor M.',es:'Igor M.'},first:{ru:'Игорь',en:'Igor',es:'Igor'},init:{ru:'ИМ',en:'IM',es:'IM'},color:'#2E7D5B',
+   skill:{ru:'Настройка компьютеров и роутеров',en:'Computer & router setup',es:'Configuración de PC y routers'},
+   badge:{ru:'Проверен',en:'Verified',es:'Verificado',cls:'b-ver'},rating:4.9,deals:27,local:14,
+   dist:{ru:'1,2 км · ваш район',en:'1.2 km · your neighborhood',es:'1,2 km · tu barrio'},
+   free:{ru:'Свободен · 2 слота',en:'Available · 2 slots',es:'Disponible · 2 lugares'},isFree:true,near:true,
+   eq:{ru:'2 ч',en:'2 h',es:'2 h'},eqN:2,xp:{ru:'XP ×2 · ваш район',en:'XP ×2 · your neighborhood',es:'XP ×2 · tu barrio'},remote:false,
+   ladder:3,karma:'high',cancel:'4%',onTime:'96%'},
+  {id:2,name:{ru:'Алина С.',en:'Alina S.',es:'Alina S.'},first:{ru:'Алина',en:'Alina',es:'Alina'},init:{ru:'АС',en:'AS',es:'AS'},color:'#3B6EA5',
+   skill:{ru:'Английский язык · разговорный',en:'English · conversation',es:'Inglés · conversación'},
+   badge:{ru:'Наставник',en:'Mentor',es:'Mentora',cls:'b-mentor'},rating:4.8,deals:41,local:8,
+   dist:{ru:'удалённо',en:'remote',es:'remoto'},
+   free:{ru:'Свободна · 1 слот',en:'Available · 1 slot',es:'Disponible · 1 lugar'},isFree:true,near:false,
+   eq:{ru:'1 ч / урок',en:'1 h / lesson',es:'1 h / clase'},eqN:1,xp:{ru:'XP ×1.8 · дефицит в вашем регионе',en:'XP ×1.8 · deficit in your region',es:'XP ×1.8 · déficit en tu región'},remote:true,
+   ladder:3,karma:'high',cancel:'2%',onTime:'98%',
+   mentor:{ru:'обучила 12 человек, 9 дошли до первой сделки',en:'trained 12 people, 9 reached their first deal',es:'enseñó a 12 personas, 9 llegaron a su primer trato'}},
+  {id:3,name:{ru:'Дмитрий К.',en:'Dmitry K.',es:'Dmitri K.'},first:{ru:'Дмитрий',en:'Dmitry',es:'Dmitri'},init:{ru:'ДК',en:'DK',es:'DK'},color:'#8A6510',
+   skill:{ru:'Настройка компьютеров',en:'Computer setup',es:'Configuración de PC'},
+   badge:{ru:'Подтверждён',en:'Confirmed',es:'Confirmado',cls:'b-conf'},rating:4.5,deals:6,local:6,
+   dist:{ru:'3,4 км · Промышленный р-н',en:'3.4 km · Industrial district',es:'3,4 km · barrio Echesortu'},
+   free:{ru:'Свободен · 3 слота',en:'Available · 3 slots',es:'Disponible · 3 lugares'},isFree:true,near:false,
+   eq:{ru:'1 ч',en:'1 h',es:'1 h'},eqN:1,xp:{ru:'XP ×1.5 · ваш город',en:'XP ×1.5 · your city',es:'XP ×1.5 · tu ciudad'},remote:false,
+   ladder:2,karma:'norm',cancel:'0%',onTime:'100%'},
+  {id:4,name:{ru:'Вера Л.',en:'Vera L.',es:'Vera L.'},first:{ru:'Вера',en:'Vera',es:'Vera'},init:{ru:'ВЛ',en:'VL',es:'VL'},color:'#B4543C',
+   skill:{ru:'Компьютерная помощь · выезд',en:'Computer help · on-site',es:'Ayuda informática · a domicilio'},
+   badge:{ru:'Заявлен',en:'Declared',es:'Declarada',cls:'b-decl'},rating:null,deals:0,local:0,
+   dist:{ru:'2,1 км · ваш район',en:'2.1 km · your neighborhood',es:'2,1 km · tu barrio'},
+   free:{ru:'Свободна · 1 слот',en:'Available · 1 slot',es:'Disponible · 1 lugar'},isFree:true,near:true,
+   eq:{ru:'до 2 ч',en:'up to 2 h',es:'hasta 2 h'},eqN:2,xp:{ru:'+XP за доверие новичку',en:'+XP for trusting a newcomer',es:'+XP por confiar en una novata'},remote:false,
+   ladder:1,karma:'norm',cancel:'—',onTime:'—',newbie:true},
+  {id:5,name:{ru:'Сергей П.',en:'Sergey P.',es:'Sergio P.'},first:{ru:'Сергей',en:'Sergey',es:'Sergio'},init:{ru:'СП',en:'SP',es:'SP'},color:'#5A6B62',
+   skill:{ru:'Ремонт и настройка ПК',en:'PC repair & setup',es:'Reparación y configuración de PC'},
+   badge:{ru:'Проверен',en:'Verified',es:'Verificado',cls:'b-ver'},rating:4.7,deals:19,local:11,
+   dist:{ru:'5,8 км',en:'5.8 km',es:'5,8 km'},
+   free:{ru:'Recovery · 1 реаб. сделка',en:'Recovery · 1 rehab deal',es:'Recovery · 1 trato rehab.'},isFree:true,near:false,
+   eq:{ru:'2 ч',en:'2 h',es:'2 h'},eqN:2,xp:{ru:'+карма за второй шанс',en:'+karma for a second chance',es:'+karma por la segunda oportunidad'},remote:false,
+   ladder:3,karma:'low',cancel:'12%',onTime:'91%',recovery:true},
+];
+
+let lang=localStorage.getItem('kvity_lang')||'ru';
+let currentQuery='', openProfileId=null, ringAgreed=false, invites=3, slotTaken=false, joinedVol=false;
+let userPaused=false, pendingProposeName='', selectedRating=0, chatWaitingConfirm=false;
+const t=()=>T[lang];
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+function setLang(l){
+  lang=l;localStorage.setItem('kvity_lang',l);
+  document.documentElement.lang=l;
+  ['ru','en','es'].forEach(k=>document.getElementById('l'+k).classList.toggle('on',l===k));
+  renderStatic();
+  if(isOn('results'))renderResults();
+  if(isOn('profile')&&openProfileId)openProfile(openProfileId,false);
+  if(isOn('me'))renderMe();
+  if(isOn('projects'))renderProjects();
+  if(isOn('dash'))renderDash();
+  if(isOn('chat'))renderChat();
+}
+const isOn=id=>document.getElementById(id).classList.contains('active');
+
+function renderStatic(){
+  const x=t();
+  document.getElementById('demobar').innerHTML=
+    `${x.demobar}<a href="https://t.me/" target="_blank" rel="noopener">${x.tglink}</a> · <button type="button" onclick="resetDemo()">${x.demoreset}</button>`;
+  document.getElementById('biglogo').innerHTML=x.logo;
+  document.getElementById('minilogo').innerHTML=x.mini;
+  document.getElementById('tagline').textContent=x.tagline;
+  document.getElementById('philo').innerHTML=x.philo.map(p=>`<div class="philoline">${p}</div>`).join('');
+  document.getElementById('q').placeholder=x.ph;
+  document.getElementById('gobtn').textContent=x.go;
+  document.getElementById('cloudlbl').textContent=x.cloudlbl;
+  renderMyStatus();
+  document.getElementById('backlbl').textContent=x.back;
+  document.getElementById('meback').textContent=x.meback;
+  document.getElementById('resgeo').textContent=x.geo;
+  document.getElementById('q2').placeholder=x.ph;
+  document.getElementById('projhead').textContent=x.pTitle;
+  document.getElementById('dashhead').textContent=x.dTitle;
+  document.getElementById('modalno').textContent=x.modalNo;
+  ['nl1','nl2','nl3'].forEach((id,i)=>document.getElementById(id).textContent=x.nav[i]);
+  renderCloud();renderChips();renderFilters();
+}
+function renderMyStatus(){
+  const x=t(), el=document.getElementById('mystatus');
+  if(userPaused){
+    el.innerHTML=`<span class="dot" style="background:var(--danger)"></span> ${x.statusPaused}`;
+    el.title=x.btnResume;
+  }else{
+    el.innerHTML=`<span class="dot"></span> ${x.statusFree.replace('{debts}','1').replace('{limit}',CONFIG.debtLimit)}`;
+    el.title=x.meTitle;
+  }
+}
+function renderCloud(){
+  document.getElementById('cloud').innerHTML=CLOUD.map(c=>
+    `<button type="button" class="tag ${c.c}" data-q="${esc(c.q[lang])}">${c[lang]}<span class="n">${c.n}</span></button>`
+  ).join('');
+  document.getElementById('cloud').onclick=e=>{
+    const btn=e.target.closest('[data-q]');
+    if(btn)hintSearch(btn.dataset.q);
+  };
+}
+function renderChips(){
+  const on={};document.querySelectorAll('.chip.on[data-f]').forEach(c=>on[c.dataset.f]=1);
+  const moreOn=document.getElementById('morefilters').classList.contains('open');
+  const x=t().chips;
+  document.getElementById('chips').innerHTML=
+    ['near','free','verified','remote','mentor'].map(k=>
+      `<button class="chip ${on[k]?'on':''}" data-f="${k}" onclick="toggleChip(this)">${x[k]}</button>`
+    ).join('')+`<button class="chip ${moreOn?'on':''}" onclick="toggleMore(this)">${x.more}</button>`;
+}
+function renderFilters(){
+  const el=document.getElementById('morefilters');
+  const prev=[...el.querySelectorAll('.fopts')].map(g=>[...g.children].findIndex(o=>o.classList.contains('on')));
+  el.innerHTML=t().frows.map((r,i)=>`
+    <div class="frow"><div class="flabel">${r.l}</div>
+    <div class="fopts">${r.o.map((o,j)=>`<button class="fopt ${(prev[i]??r.d)===j?'on':''}" onclick="pickOpt(this)">${o}</button>`).join('')}</div></div>
+  `).join('');
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const navMap={home:'nav-home',results:'nav-home',profile:'nav-home',me:'nav-home',projects:'nav-projects',dash:'nav-dash',chat:'nav-dash'};
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+  document.getElementById(navMap[id]).classList.add('on');
+  window.scrollTo(0,0);
+}
+function navTo(id){
+  if(id==='projects')renderProjects();
+  if(id==='dash')renderDash();
+  show(id);
+}
+function hintSearch(q){document.getElementById('q').value=q;goSearch();}
+function goSearch(e){
+  if(e)e.preventDefault();
+  currentQuery=document.getElementById('q').value||CLOUD[0].q[lang];
+  document.getElementById('q2').value=currentQuery;
+  renderResults();show('results');
+}
+function refresh(e){e.preventDefault();currentQuery=document.getElementById('q2').value;renderResults();}
+function toggleChip(el){el.classList.toggle('on');renderResults();}
+function toggleMore(el){document.getElementById('morefilters').classList.toggle('open');el.classList.toggle('on');}
+function pickOpt(el){el.parentElement.querySelectorAll('.fopt').forEach(o=>o.classList.remove('on'));el.classList.add('on');renderResults();}
+function activeFilters(){const f={};document.querySelectorAll('.chip.on[data-f]').forEach(c=>f[c.dataset.f]=true);return f;}
+
+function renderResults(){
+  const f=activeFilters(),x=t();
+  const q=currentQuery.toLowerCase().trim();
+  let list=PEOPLE.filter(p=>{
+    if(userPaused)return false;
+    if(f.near&&!p.near)return false;
+    if(f.free&&!p.isFree)return false;
+    if(f.verified&&p.badge.cls!=='b-ver')return false;
+    if(f.remote&&!p.remote)return false;
+    if(f.mentor&&p.badge.cls!=='b-mentor')return false;
+    if(q){
+      const hay=(p.name[lang]+' '+p.skill[lang]).toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  });
+  const rank={high:0,norm:1,low:2};
+  list=[...list].sort((a,b)=>rank[a.karma]-rank[b.karma]);
+  document.getElementById('rescount').textContent=x.found(list.length,currentQuery);
+  document.getElementById('reslist').innerHTML=list.map(p=>`
+    <button class="rcard" onclick="openProfile(${p.id})">
+      <div class="rtop">
+        <div class="ava" style="background:${p.color}">${p.init[lang]}</div>
+        <div>
+          <div class="rname">${p.name[lang]} <span class="badge ${p.badge.cls}">${p.badge[lang]}</span></div>
+          <div class="rskill">${p.skill[lang]}</div>
+        </div>
+      </div>
+      <div class="rmeta">
+        <span class="${p.recovery?'busy':(p.isFree?'free':'busy')}">● ${p.free[lang]}</span>
+        <span class="karma k-${p.karma}">${x.karma[p.karma]}</span>
+        <span>📍 ${p.dist[lang]}</span>
+        ${p.rating?`<span><span class="stars">★</span> ${p.rating} · ${p.deals} ${x.deals}${p.local?` · <b>${p.local} ${x.inCity}</b>`:''}</span>`:`<span>${x.firstDeal}</span>`}
+      </div>
+      <div class="kvitline">
+        <span class="eq">${p.eq[lang]}<span class="swap">⇄</span>${x.yourHours}</span>
+        ${p.xp[lang]?`<span class="xp">${p.xp[lang]}</span>`:''}
+      </div>
+    </button>
+  `).join('')||`<div style="text-align:center;color:var(--ink-soft);padding:40px 0">${userPaused?(lang==='ru'?'Профиль на паузе — снимите паузу в «Мой профиль»':lang==='es'?'Perfil en pausa — reanudá en «Mi perfil»':'Profile paused — resume in My profile'):x.empty}</div>`;
+}
+
+function openProfile(id,doShow=true){
+  if(userPaused){toast(t().pausedBanner);return;}
+  openProfileId=id;
+  const p=PEOPLE.find(y=>y.id===id),x=t();
+  const myOpts=ME.skills.map(s=>`<option>${s[lang]} · ${s.eq} ${x.h}</option>`).join('');
+  document.getElementById('pbody').innerHTML=`
+    <div class="pcard">
+      <div class="phead">
+        <div class="ava big" style="background:${p.color}">${p.init[lang]}</div>
+        <div>
+          <div class="pname">${p.name[lang]}</div>
+          <div class="psub">${p.skill[lang]} · <span class="badge ${p.badge.cls}">${p.badge[lang]}</span> <span class="karma k-${p.karma}">${x.karma[p.karma]}</span></div>
+        </div>
+      </div>
+      <div class="pstats">
+        <div class="pstat"><div class="v">${p.rating??'—'}</div><div class="k">${x.stats.q}</div></div>
+        <div class="pstat"><div class="v">${p.onTime}</div><div class="k">${x.stats.t}</div></div>
+        <div class="pstat"><div class="v">${p.deals}</div><div class="k">${x.stats.d}</div></div>
+        <div class="pstat"><div class="v">${p.cancel}</div><div class="k">${x.stats.c}</div></div>
+      </div>
+      ${p.recovery?`<div class="recov">${x.recovery}</div>`:''}
+    </div>
+
+    <div class="sect">${x.maturity}</div>
+    <div class="pcard">
+      <div class="ladder">
+        ${x.steps.map((s,i)=>`<div class="step ${i<p.ladder?'done':''}"><div class="pt"></div><div class="lbl">${s}</div></div>`).join('')}
+      </div>
+      ${p.mentor?`<div class="bnote" style="margin-top:14px">🎓 ${p.mentor[lang]}</div>`:''}
+      ${p.newbie?`<div class="bnote warn" style="margin-top:14px">${x.newbieNote}</div>`:''}
+    </div>
+
+    <div class="sect">${x.proposeTitle}</div>
+    <div class="builder">
+      <div class="btitle">${x.yourTerms}</div>
+      <div class="bside">
+        <div class="bwho">${x.toYou(p.name[lang])}</div>
+        <div class="bwhat">
+          <span>${p.skill[lang]}</span>
+          <span class="hourpick">
+            <button class="hbtn" onclick="chg('their',-1)">−</button>
+            <span class="hval mono" id="their">${p.eqN} ${x.h}</span>
+            <button class="hbtn" onclick="chg('their',1)">+</button>
+          </span>
+        </div>
+      </div>
+      <div class="bswap">⇄</div>
+      <div class="bside">
+        <div class="bwho">${x.fromYou(p.first[lang])}</div>
+        <div class="bwhat">
+          <select id="myskill">${myOpts}</select>
+          <span class="hourpick">
+            <button class="hbtn" onclick="chg('mine',-1)">−</button>
+            <span class="hval mono" id="mine">${p.eqN} ${x.h}</span>
+            <button class="hbtn" onclick="chg('mine',1)">+</button>
+          </span>
+        </div>
+      </div>
+      <div class="bnote" id="eqnote">${x.eqOk}</div>
+      <div class="bnote">${x.cancelNote}</div>
+      ${p.remote?'':`<div class="bnote" style="color:var(--remote)">${x.safetyBuilder}</div>`}
+      <button class="propose" onclick="propose('${p.first[lang]}')">${p.recovery?x.proposeRecov:x.proposeBtn}</button>
+    </div>
+  `;
+  if(doShow)show('profile');
+}
+function chg(side,d){
+  const x=t(),el=document.getElementById(side);
+  let v=parseInt(el.textContent,10);
+  v=Math.max(1,Math.min(8,v+d));
+  el.textContent=v+' '+x.h;
+  const th=parseInt(document.getElementById('their').textContent,10);
+  const m=parseInt(document.getElementById('mine').textContent,10);
+  const note=document.getElementById('eqnote');
+  const ratio=Math.max(th,m)/Math.min(th,m);
+  if(ratio<=2){
+    note.textContent=x.eqOk;
+    note.className='bnote';
+  }else{
+    note.textContent=x.eqWarn(th,m);
+    note.className='bnote eqwarn';
+  }
+}
+function openModal(text,yesFn){
+  document.getElementById('modaltext').textContent=text;
+  const yesBtn=document.getElementById('modalyes');
+  yesBtn.textContent=t().modalYes;
+  yesBtn.onclick=()=>{closeModal();yesFn();};
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function propose(name){
+  if(userPaused){toast(t().pausedBanner);return;}
+  const th=parseInt(document.getElementById('their').textContent,10);
+  const m=parseInt(document.getElementById('mine').textContent,10);
+  const ratio=Math.max(th,m)/Math.min(th,m);
+  const send=()=>{toast(t().toast(name));show('dash');renderDash();};
+  if(ratio>2)openModal(t().eqWarn(th,m),send);
+  else send();
+}
+function openMe(){renderMe();show('me');}
+function renderMe(){
+  const x=t();
+  document.getElementById('mebody').innerHTML=`
+    ${userPaused?`<div class="pausedbanner">${x.pausedBanner}</div>`:''}
+    <div class="pcard">
+      <div class="pname" style="margin-bottom:12px">${x.meTitle}</div>
+      <div class="sect" style="margin-top:0">${x.mySkills}</div>
+      <div class="skillslist">${ME.skills.map(s=>`<span class="skilltag">${s[lang]}</span>`).join('')}</div>
+      <div class="sect">${x.myNeeds}</div>
+      <div class="skillslist">${ME.needs.map(n=>`<span class="needtag">${n[lang]}</span>`).join('')}</div>
+      <div class="pstats" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+        <div class="pstat"><div class="v mono">1/${CONFIG.debtLimit}</div><div class="k">${x.dDebts}</div></div>
+        <div class="pstat"><div class="v">${ME.closedDeals}</div><div class="k">${x.closedDeals}</div></div>
+        <div class="pstat"><div class="v mono">${CONFIG.debtDays}</div><div class="k">${x.h} · ${lang==='ru'?'дедлайн':lang==='es'?'plazo':'deadline'}</div></div>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="${userPaused?'btn-resume':'btn-pause'}" onclick="togglePause()">${userPaused?x.btnResume:x.btnPause}</button>
+      </div>
+    </div>
+    <div class="bnote" style="margin:4px 6px">💡 ${x.dLimit.replace(/<[^>]+>/g,'')}</div>
+  `;
+}
+function togglePause(){
+  userPaused=!userPaused;
+  renderMyStatus();
+  if(isOn('me'))renderMe();
+  if(isOn('results'))renderResults();
+  toast(userPaused?t().pausedBanner:t().btnResume);
+}
+function resetDemo(){
+  ringAgreed=false;matchSent=false;invites=3;slotTaken=false;joinedVol=false;
+  userPaused=false;chatState='neg';chatMsgs=null;dealShared=false;selectedRating=0;chatWaitingConfirm=false;
+  currentQuery='';openProfileId=null;
+  document.getElementById('q').value='';
+  document.getElementById('morefilters').classList.remove('open');
+  document.querySelectorAll('.chip.on[data-f]').forEach(c=>c.classList.remove('on'));
+  renderStatic();show('home');
+  toast(lang==='ru'?'Демо сброшено':lang==='es'?'Demo reiniciado':'Demo reset');
+}
+
+let chatState='neg', chatMsgs=null, matchSent=false, dealShared=false;
+function renderDash(){
+  const x=t();
+  document.getElementById('dashbody').innerHTML=`
+    <div class="sect">${x.dTitle}</div>
+    <div class="pcard">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="mono" style="font-weight:700;font-size:17px">240 XP</span>
+        <span class="karma k-high">${x.karma.high}</span>
+      </div>
+      <div class="bnote" style="margin-top:10px">📈 ${x.dXpNote}</div>
+      <div class="prog"><i style="width:62%"></i></div>
+    </div>
+
+    <div class="ringcard">
+      <div class="ringtitle">💫 ${x.dRing}</div>
+      ${x.ringRows.map(r=>`<div class="ringrow"><span class="mini" style="background:${r[2]}">${r[0]}</span> <span class="arr">→</span> ${r[1]}</div>`).join('')}
+      <div class="bnote">🔗 ${x.dRingNote}</div>
+      <button class="propose" ${ringAgreed?'disabled':''} onclick="agreeRing()">${ringAgreed?x.dRingWait:x.dRingBtn}</button>
+    </div>
+
+    <div class="matchcard">
+      <div class="ringtitle">🔀 ${x.dMatch}</div>
+      <div class="mrow"><span class="mini" style="background:#B4543C">${lang==='ru'?'В':'V'}</span> <span class="marr">→</span> ${x.dMatch1}</div>
+      <div class="mrow"><span class="mini" style="background:var(--deal)">${lang==='ru'?'Вы':(lang==='es'?'Vos':'You')}</span> <span class="marr">→</span> ${x.dMatch2}</div>
+      <div class="bnote">🔀 ${x.dMatchNote}</div>
+      <div class="bnote" style="margin-top:6px"><span class="xp" style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--xp);background:#FDF6E1;border-radius:6px;padding:3px 8px">${x.dMatchXp}</span></div>
+      <button class="propose" ${matchSent?'disabled':''} onclick="sendMatch()">${matchSent?x.dMatchSent:x.dMatchBtn}</button>
+    </div>
+
+    <div class="sect">${x.dDebts}</div>
+    <div class="pcard">
+      <div class="debt"><div><div class="dl">${x.dMyDebt}</div><div class="ds">${x.dMyDebtS}</div></div><span class="st st-half">${x.stHalf}</span></div>
+      <div class="debt"><div><div class="dl">${x.dInDebt}</div><div class="ds">${x.dInDebtS}</div></div><span class="st st-half">${x.stHalf}</span></div>
+      <div class="debt" onclick="openChat()" style="cursor:pointer"><div><div class="dl">💬 ${x.dDraft}</div><div class="ds">${x.dDraftS}</div></div><span class="st st-wait">${x.stDraft}</span></div>
+      <div class="bnote">⏳ ${x.dLimit}</div>
+    </div>
+
+    <div class="sect">${x.dInv}</div>
+    <div class="pcard">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="invn">${invites}</span>
+        <button class="propose sec" style="margin-top:0;flex:1" ${invites===0?'disabled':''} onclick="sendInvite()">${x.dInvBtn}</button>
+      </div>
+      <div class="bnote">🤝 ${x.dInvNote}</div>
+    </div>
+  `;
+}
+function sendMatch(){matchSent=true;renderDash();toast(t().dMatchToast);}
+function agreeRing(){ringAgreed=true;renderDash();toast(t().dRingToast);}
+function sendInvite(){if(invites>0){invites--;renderDash();toast(t().dInvToast);}}
+
+function renderProjects(){
+  const x=t();
+  document.getElementById('projbody').innerHTML=`
+    <div class="sect">${x.pTitle}</div>
+
+    <div class="pcard">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="font-weight:600;font-size:15.5px">${x.p1name}</div>
+        <span class="ptype pt-ex">${x.pEx}</span>
+      </div>
+      <div class="psub">${x.p1org}</div>
+      <div class="sect" style="margin:14px 0 4px">${x.slots}</div>
+      <div class="slot"><span>${x.s1}</span><span class="taken">${x.s1v}</span></div>
+      <div class="slot"><span>${x.s2}</span>${slotTaken?`<span class="taken">${x.taken} · ${x.you}</span>`:`<button class="slotbtn" onclick="takeSlot()">${x.takeSlot}</button>`}</div>
+      <div class="slot"><span>${x.s3}</span><button class="slotbtn" onclick="toast(t().slotToast)">${x.takeSlot}</button></div>
+      <div class="bnote">📜 ${x.p1note}</div>
+    </div>
+
+    <div class="pcard">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="font-weight:600;font-size:15.5px">${x.p2name}</div>
+        <span class="ptype pt-vol">${x.pVol}</span>
+      </div>
+      <div class="psub">${x.p2org}</div>
+      <div class="bnote" style="margin-top:12px">🌳 ${x.p2note}</div>
+      <div class="psub" style="margin-top:12px">${x.joined(joinedVol?13:12,20)} ${joinedVol?'· ✓':''}</div>
+      <div class="prog"><i style="width:${(joinedVol?13:12)/20*100}%"></i></div>
+      <button class="propose" ${joinedVol?'disabled':''} onclick="joinVol()">${joinedVol?'✓':x.joinBtn}</button>
+    </div>
+
+    <div class="bnote" style="margin:4px 6px">🔑 ${x.orgNote}</div>
+  `;
+}
+function takeSlot(){slotTaken=true;renderProjects();toast(t().slotToast);}
+function joinVol(){joinedVol=true;renderProjects();toast(t().joinToast);}
+
+function openChat(){
+  if(!chatMsgs)initChat();
+  renderChat();show('chat');
+}
+function initChat(){
+  chatMsgs=[
+    {k:'sys',key:'chatHint'},
+    {k:'tpl',who:'them',key:'igorOffer',offer:true},
+    {k:'bub',who:'them',key:'igorFree'},
+  ];
+}
+function renderChat(){
+  const x=t(), p=PEOPLE[0];
+  const stCls={neg:'',fix:'st-fixed',exec:'st-exec',del:'st-half',quits:'st-quits'}[chatState]||'';
+  document.getElementById('chatava').textContent=p.init[lang];
+  document.getElementById('chatname').textContent=p.name[lang];
+  document.getElementById('chatdeal').innerHTML=`<span class="dealnum">${x.dealNum}</span> · ${x.chatDeal}`;
+  const stEl=document.getElementById('chatst');
+  stEl.textContent=x.chatSt[chatState];
+  stEl.className='stpill '+stCls;
+  document.getElementById('freetxt').placeholder=x.inputPh;
+  document.getElementById('msgs').innerHTML=chatMsgs.map(m=>{
+    const txt=m.lit??(m.key?x[m.key]:'');
+    if(m.k==='safety')return `<div class="safety"><div class="st1">${x.safetyTitle}</div>${x.safetyTxt}<div style="margin-top:8px;font-weight:600">${x.shareBtn}:</div>${dealShared?`<div class="shared">${x.shareDone}</div>`:`<div class="shrow"><input id="sharephone" type="tel" placeholder="${x.sharePh}" onkeydown="if(event.key==='Enter')sendShare()"><button type="button" onclick="sendShare()">${x.shareSend}</button></div>`}</div>`;
+    if(m.k==='sys')return `<div class="sysmsg${m.warn?' warn':''}">${txt}</div>`;
+    if(m.k==='bub')return `<div class="bub ${m.who}">${txt}</div>`;
+    if(m.k==='rating')return `<div class="tplcard me"><div class="tl">${x.ratePartner}</div><div class="ratingpick" id="ratingpick">${[1,2,3,4,5].map(n=>`<button type="button" class="${selectedRating>=n?'on':''}" onclick="pickRating(${n})">★${n}</button>`).join('')}</div>${selectedRating?`<div class="tplbtns"><button type="button" onclick="submitQuits()">${x.tplQuits}</button></div>`:''}</div>`;
+    const btns=(m.offer&&chatState==='neg')?`<div class="tplbtns"><button type="button" onclick="acceptOffer()">${x.acceptBtn}</button><button type="button" class="sec" onclick="toast(t().counterToast)">${x.counterBtn}</button></div>`:
+      (m.confirmRecv&&chatWaitingConfirm)?`<div class="tplbtns"><button type="button" onclick="confirmRecv()">${x.tplConfirmRecv}</button></div>`:
+      (m.confirm&&chatState==='del'&&!chatWaitingConfirm)?`<div class="tplbtns"><button type="button" onclick="startQuits()">${x.tplQuits}</button><button type="button" class="sec" onclick="toast(t().disputeToast)">${x.tplDispute}</button></div>`:'';
+    return `<div class="tplcard ${m.who}"><div class="tl">${x.cardTl}</div>${txt}${btns}</div>`;
+  }).join('');
+  const chips={neg:['tplTime','tplPlace'],fix:['tplTime','tplPlace','tplStart'],exec:['tplStart'],del:[],quits:[]}[chatState];
+  document.getElementById('tplchips').innerHTML=(chips||[]).map(c=>{
+    const act={tplTime:"chatAct('time')",tplPlace:"chatAct('place')",tplStart:"chatAct('start')"}[c];
+    return `<button type="button" class="tplchip" onclick="${act}">${x[c]}</button>`;
+  }).join('');
+  const msgsEl=document.getElementById('msgs');
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function confirmRecv(){
+  chatWaitingConfirm=false;
+  chatMsgs.push({k:'sys',key:'confirmReceived'},{k:'sys',key:'sysHalfDone'});
+  renderChat();
+}
+function startQuits(){
+  chatMsgs.push({k:'rating'});
+  renderChat();
+}
+function pickRating(n){selectedRating=n;renderChat();}
+function submitQuits(){
+  if(!selectedRating)return;
+  chatState='quits';
+  chatMsgs=chatMsgs.filter(m=>m.k!=='rating');
+  chatMsgs.push({k:'tpl',who:'me',key:'quitsCard'},{k:'sys',key:'sysQuits'});
+  renderChat();
+}
+function acceptOffer(){
+  chatState='fix';
+  chatMsgs.push({k:'tpl',who:'me',key:'accepted'},{k:'sys',key:'sysFixed'},{k:'safety'});
+  renderChat();
+}
+function chatAct(a){
+  if(a==='time'){chatMsgs.push({k:'tpl',who:'me',key:'timeProposal'},{k:'bub',who:'them',key:'themOk'});}
+  if(a==='place'){chatMsgs.push({k:'tpl',who:'me',key:'placeProposal'},{k:'bub',who:'them',key:'themOk'});}
+  if(a==='start'){
+    chatState='exec';
+    chatMsgs.push({k:'tpl',who:'me',key:'startCard'},{k:'sys',key:'sysExec'});
+    renderChat();
+    setTimeout(()=>{
+      chatState='del';
+      chatWaitingConfirm=true;
+      chatMsgs.push({k:'bub',who:'them',key:'igorDone'},{k:'tpl',who:'them',key:'deliveredCard',confirmRecv:true});
+      renderChat();
+    },1200);
+    return;
+  }
+  if(a==='quits'){
+    startQuits();
+    return;
+  }
+  renderChat();
+}
+function sendShare(){
+  const el=document.getElementById('sharephone');
+  const ph=(el?.value||'').trim();
+  if(ph.length<6){toast(t().shareErr);return;}
+  dealShared=true;
+  chatMsgs.push({k:'sys',lit:t().shareSms(ph)});
+  renderChat();
+  toast(t().shareToast);
+}
+function sendFree(){
+  const el=document.getElementById('freetxt');
+  const v=el.value.trim();
+  if(!v)return;
+  chatMsgs.push({k:'bub',who:'me',lit:v});
+  if(/(\+?\d[\d\s\-()]{6,}|whats?app|telegram|viber|вотсап|ватсап|телег)/i.test(v)){
+    chatMsgs.push({k:'sys',key:'bypassWarn',warn:true});
+  }
+  el.value='';
+  renderChat();
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3400);
+}
+
+if(localStorage.getItem('kvity_lang'))setLang(lang);
+else renderStatic();
+</script>
+</body>
+</html>
