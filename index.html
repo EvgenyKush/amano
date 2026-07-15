@@ -48,7 +48,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 #home{align-items:center;justify-content:center;padding:24px;text-align:center}
 .logo{font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(38px,9vw,60px);letter-spacing:-.02em}
 .logo .swap{color:var(--deal);display:inline-block}
-.tagline{color:var(--ink-soft);margin:10px 0 34px;font-size:16px}
+.tagline{color:var(--ink);margin:10px 0 6px;font-size:17px;font-weight:500}
+.subtagline{color:var(--ink-soft);margin:0 0 28px;font-size:14.5px}
 .searchwrap{width:100%;max-width:560px}
 .searchbar{
   display:flex;align-items:center;gap:10px;background:var(--card);
@@ -276,6 +277,21 @@ body{padding-top:34px}
 .skillslist{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 .skilltag{background:var(--dealL);color:var(--dealD);padding:6px 11px;border-radius:999px;font-size:13px;font-weight:500}
 .needtag{background:#EAF0F7;color:var(--remote);padding:6px 11px;border-radius:999px;font-size:13px;font-weight:500}
+.interesttag{background:#F0EBF7;color:#5A3D8A;padding:6px 11px;border-radius:999px;font-size:13px;font-weight:500}
+.colintro{background:linear-gradient(135deg,#F0EBF7,#E3F0E9);border:1px solid #D8CCE8;border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.5;color:var(--ink-soft)}
+.colintro b{color:#5A3D8A}
+.colcard{background:var(--card);border:1.5px solid #D8CCE8;border-radius:var(--radius);padding:16px;margin-bottom:12px;text-align:left;width:100%;transition:transform .12s;box-shadow:0 4px 16px rgba(107,78,155,.08)}
+.colcard:active{transform:scale(.985)}
+.colstatus{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:6px}
+.col-st-rec{background:#F0EBF7;color:#5A3D8A}
+.col-st-act{background:var(--dealL);color:var(--deal-dark)}
+.colmeta{font-size:13px;color:var(--ink-soft);margin-top:8px;display:flex;flex-wrap:wrap;gap:8px 14px}
+.colrole{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.colrole:last-child{border-bottom:none}
+.colrolebtn{background:#5A3D8A;color:#fff;border-radius:8px;padding:7px 13px;font-weight:600;font-size:13px;flex:none}
+.colleaderbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.colleaderbar button{font-size:12.5px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-weight:600}
+.pt-col{background:#F0EBF7;color:#5A3D8A}
 .btnrow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 .btnrow button{flex:1;min-width:120px;padding:12px;border-radius:10px;font-weight:600;font-size:14px}
 .btn-pause{background:var(--paper);border:1.5px solid var(--line);color:var(--ink)}
@@ -298,6 +314,7 @@ body{padding-top:34px}
 <div class="screen active" id="home">
   <div class="logo" id="biglogo"></div>
   <div class="tagline" id="tagline"></div>
+  <div class="subtagline" id="subtagline"></div>
   <div class="philo" id="philo"></div>
   <div class="searchwrap">
     <form class="searchbar" onsubmit="goSearch(event)">
@@ -351,6 +368,15 @@ body{padding-top:34px}
   <div class="screenhead" id="projhead"></div>
   <div class="pbody" id="projbody" style="padding-top:0"></div>
 </div>
+<div class="screen" id="collective">
+  <div class="pbar">
+    <button class="back" onclick="show('projects')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span id="colback"></span>
+    </button>
+  </div>
+  <div class="pbody" id="colbody"></div>
+</div>
 <div class="screen" id="dash">
   <div class="screenhead" id="dashhead"></div>
   <div class="pbody" id="dashbody" style="padding-top:0"></div>
@@ -382,7 +408,7 @@ body{padding-top:34px}
 
 <div class="nav">
   <button id="nav-home" class="on" onclick="navTo('home')"><span class="ic">🔍</span><span id="nl1"></span></button>
-  <button id="nav-projects" onclick="navTo('projects')"><span class="ic">🤝</span><span id="nl2"></span></button>
+  <button id="nav-projects" onclick="navTo('projects')"><span class="ic">🎭</span><span id="nl2"></span></button>
   <button id="nav-dash" onclick="navTo('dash')"><span class="ic">⇄</span><span id="nl3"></span></button>
 </div>
 
@@ -404,7 +430,8 @@ const CONFIG={debtLimit:2,debtDays:14,draftDays:7};
 const T = {
 ru:{
   logo:'кви<span class="swap">⇄</span>ты', mini:'к<span class="swap">⇄</span>',
-  tagline:'Где умениям нет цены.',
+  tagline:'Где умения бесценны.',
+  subtagline:'Меняйтесь умениями. Без денег.',
   demobar:'Интерактивный прототип · ',
   demoreset:'сбросить демо',
   tglink:'Telegram-бот',
@@ -430,7 +457,7 @@ ru:{
   cloudlbl:'Чем меняются рядом с вами',
   mystatus:'',
   karma:{high:'☯ карма высокая',norm:'☯ карма обычная',low:'☯ карма низкая'},
-  nav:['Поиск','Проекты','Мои квиты'],
+  nav:['Поиск','Сотворчество','Мои квиты'],
   back:'К результатам',
   found:(n,q)=>`Найдено: ${n} · «${q}»`,
   geo:'Самара · весь город',
@@ -490,6 +517,33 @@ ru:{
   joined:(a,b)=>`Участников: ${a}/${b}`,
   joinBtn:'Участвовать', joinToast:'Вы записались на субботник · +XP и карма после взаимного подтверждения участия',
   orgNote:'Организация проектов открывается уровнем «Проверенный», общественных — высокой кармой.',
+  colTitle:'Сотворчество',
+  colIntro:'<b>Делаем вместе для себя.</b> Долгов нет — открытый жизненный цикл. Вступление свободное, XP за вступление не начисляется. Обмены с участниками — обычные сделки через /deal.',
+  colStatusRec:'Набор', colStatusAct:'Активен', colStatusPause:'На паузе',
+  colLeader:(n)=>`Ведёт: ${n}`,
+  colMembers:(n)=>`${n} участн.`,
+  colRolesFree:(n)=>`${n} свободн. ролей`,
+  colCreate:'➕ Создать коллектив',
+  colCreateToast:'В Telegram-боте: /newcollective · нужна ≥1 закрытая сделка',
+  colBack:'К коллективам',
+  colSchedule:'Расписание',
+  colMembersTitle:'Участники',
+  colRolesTitle:'Роли',
+  colJoin:'Вступить',
+  colJoinNoRole:'Вступить без роли',
+  colLeave:'Выйти из коллектива',
+  colJoined:'Вы в коллективе · XP за вступление = 0',
+  colLeft:'Вы вышли из коллектива',
+  colRoleTaken:(r)=>`Роль «${r}» ваша`,
+  colRoleBusy:'Занято',
+  colRoleFree:'Свободно',
+  colDealNote:'С участниками можно заключать обычные сделки — долги считаются в общем лимите.',
+  colMatchToast:'🎯 Дмитрий К. собирает «Гаражный звук» — у вас в интересах «Музыка». Загляните!',
+  colJoinedBadge:'вы внутри',
+  colLegacy:'Групповые проекты',
+  colLegacyNote:'Отдельный режим: обменные (с долгами) и общественные (XP + карма).',
+  myInterests:'Хочу вместе',
+  colLeaderStats:'Веду коллективов: 0 · XP лидера: 0',
   chatDeal:'настройка роутера 2 ч ⇄ переезд 2 ч',
   chatSt:{neg:'Согласование',fix:'Зафиксирована',exec:'Исполняется',del:'Полуисполнена',quits:'Квиты'},
   cardTl:'Шаблон-действие',
@@ -525,6 +579,7 @@ ru:{
 en:{
   logo:'qui<span class="swap">⇄</span>ts', mini:'q<span class="swap">⇄</span>',
   tagline:'Where skills are priceless.',
+  subtagline:'Trade skills. No money.',
   demobar:'Interactive prototype · ',
   demoreset:'reset demo',
   tglink:'Telegram bot',
@@ -544,7 +599,7 @@ en:{
   cloudlbl:'What people trade near you',
   mystatus:'',
   karma:{high:'☯ high karma',norm:'☯ normal karma',low:'☯ low karma'},
-  nav:['Search','Projects','My quits'],
+  nav:['Search','Co-creation','My quits'],
   back:'Back to results',
   found:(n,q)=>`Found: ${n} · “${q}”`,
   geo:'Samara · whole city',
@@ -604,6 +659,33 @@ en:{
   joined:(a,b)=>`Participants: ${a}/${b}`,
   joinBtn:'Join', joinToast:'You signed up for the cleanup · +XP and karma after mutual confirmation of participation',
   orgNote:'Organizing projects unlocks at the "Verified" level; community ones require high karma.',
+  colTitle:'Co-creation',
+  colIntro:'<b>We do things together for ourselves.</b> No debts — open lifecycle. Join freely; no XP for joining. Exchanges with members are regular deals via /deal.',
+  colStatusRec:'Recruiting', colStatusAct:'Active', colStatusPause:'Paused',
+  colLeader:(n)=>`Led by: ${n}`,
+  colMembers:(n)=>`${n} members`,
+  colRolesFree:(n)=>`${n} open roles`,
+  colCreate:'➕ Create collective',
+  colCreateToast:'In the Telegram bot: /newcollective · requires ≥1 closed deal',
+  colBack:'Back to collectives',
+  colSchedule:'Schedule',
+  colMembersTitle:'Members',
+  colRolesTitle:'Roles',
+  colJoin:'Join',
+  colJoinNoRole:'Join without a role',
+  colLeave:'Leave collective',
+  colJoined:'You joined · XP for joining = 0',
+  colLeft:'You left the collective',
+  colRoleTaken:(r)=>`Role "${r}" is yours`,
+  colRoleBusy:'Taken',
+  colRoleFree:'Open',
+  colDealNote:'You can make regular deals with members — debts count toward your usual limit.',
+  colMatchToast:'🎯 Dmitry K. is forming "Garage Sound" — you listed Music in interests. Take a look!',
+  colJoinedBadge:'you\'re in',
+  colLegacy:'Group projects',
+  colLegacyNote:'Separate mode: exchange (with debts) and community (XP + karma).',
+  myInterests:'Want to do together',
+  colLeaderStats:'Leading: 0 collectives · leader XP: 0',
   chatDeal:'router setup 2 h ⇄ moving 2 h',
   chatSt:{neg:'Negotiation',fix:'Fixed',exec:'In progress',del:'Half-complete',quits:'Quits'},
   cardTl:'Template action',
@@ -639,6 +721,7 @@ en:{
 es:{
   logo:'a ma<span class="swap">⇄</span>no', mini:'a<span class="swap">⇄</span>',
   tagline:'Donde las habilidades no tienen precio.',
+  subtagline:'Intercambiá habilidades. Sin dinero.',
   demobar:'Prototipo interactivo · ',
   demoreset:'reiniciar demo',
   tglink:'Bot de Telegram',
@@ -658,7 +741,7 @@ es:{
   cloudlbl:'Qué se intercambia cerca tuyo',
   mystatus:'',
   karma:{high:'☯ karma alto',norm:'☯ karma normal',low:'☯ karma bajo'},
-  nav:['Buscar','Proyectos','Mis tratos'],
+  nav:['Buscar','Cocreación','Mis tratos'],
   back:'A los resultados',
   found:(n,q)=>`Encontrados: ${n} · «${q}»`,
   geo:'Rosario · toda la ciudad',
@@ -718,6 +801,33 @@ es:{
   joined:(a,b)=>`Participantes: ${a}/${b}`,
   joinBtn:'Participar', joinToast:'Te anotaste a la limpieza · +XP y karma tras la confirmación mutua de participación',
   orgNote:'Organizar proyectos se desbloquea con el nivel «Verificado»; los comunitarios requieren karma alto.',
+  colTitle:'Cocreación',
+  colIntro:'<b>Hacemos cosas juntos para nosotros.</b> Sin deudas — ciclo abierto. Entrada libre; sin XP por unirse. Los intercambios con miembros son tratos normales vía /deal.',
+  colStatusRec:'Convocatoria', colStatusAct:'Activo', colStatusPause:'En pausa',
+  colLeader:(n)=>`Lidera: ${n}`,
+  colMembers:(n)=>`${n} particip.`,
+  colRolesFree:(n)=>`${n} roles libres`,
+  colCreate:'➕ Crear colectivo',
+  colCreateToast:'En el bot de Telegram: /newcollective · requiere ≥1 trato cerrado',
+  colBack:'A colectivos',
+  colSchedule:'Horario',
+  colMembersTitle:'Participantes',
+  colRolesTitle:'Roles',
+  colJoin:'Unirse',
+  colJoinNoRole:'Unirse sin rol',
+  colLeave:'Salir del colectivo',
+  colJoined:'Te uniste · XP por unirse = 0',
+  colLeft:'Saliste del colectivo',
+  colRoleTaken:(r)=>`El rol «${r}» es tuyo`,
+  colRoleBusy:'Ocupado',
+  colRoleFree:'Libre',
+  colDealNote:'Con los miembros podés hacer tratos normales — las deudas cuentan en tu límite habitual.',
+  colMatchToast:'🎯 Dmitri K. arma «Sonido de garaje» — tenés «Música» en intereses. ¡Mirá!',
+  colJoinedBadge:'estás dentro',
+  colLegacy:'Proyectos grupales',
+  colLegacyNote:'Modo aparte: de intercambio (con deudas) y comunitario (XP + karma).',
+  myInterests:'Quiero hacer juntos',
+  colLeaderStats:'Lidero: 0 colectivos · XP de líder: 0',
   chatDeal:'router 2 h ⇄ mudanza 2 h',
   chatSt:{neg:'Negociación',fix:'Fijado',exec:'En ejecución',del:'Semicompletado',quits:'A mano'},
   cardTl:'Acción-plantilla',
@@ -778,8 +888,33 @@ const ME = {
     {ru:'Настройка компьютера',en:'Computer setup',es:'Configuración de PC'},
     {ru:'Уроки английского',en:'English lessons',es:'Clases de inglés'},
   ],
+  interests:[
+    {ru:'Музыка',en:'Music',es:'Música'},
+    {ru:'Походы',en:'Hiking',es:'Senderismo'},
+  ],
   closedDeals:7,
 };
+
+const COLLECTIVES = [
+  {id:1,
+   title:{ru:'Гаражный звук',en:'Garage Sound',es:'Sonido de garaje'},
+   desc:{ru:'Кавер-группа, ищем музыкантов для репетиций',en:'Cover band looking for musicians for rehearsals',es:'Banda de covers busca músicos para ensayos'},
+   schedule:{ru:'Вторник, 19:00 · репточка «Бас»',en:'Tuesday, 7 PM · "Bass" rehearsal space',es:'Martes, 19:00 · sala «Bass»'},
+   leader:{ru:'Дмитрий К.',en:'Dmitry K.',es:'Dmitri K.'},
+   status:'recruiting',color:'#6B4E9B',members:2,
+   roles:[
+     {id:'drums',title:{ru:'Барабанщик',en:'Drummer',es:'Baterista'},takenBy:null},
+     {id:'bass',title:{ru:'Бас-гитарист',en:'Bass guitarist',es:'Bajista'},takenBy:null},
+   ],
+   memberList:{ru:['Дмитрий К.','Игорь М.'],en:['Dmitry K.','Igor M.'],es:['Dmitri K.','Igor M.']}},
+  {id:2,
+   title:{ru:'Городские походы',en:'City hikes',es:'Senderismo urbano'},
+   desc:{ru:'Лёгкие маршруты по выходным, без спешки',en:'Easy weekend trails, no rush',es:'Rutas fáciles los fines de semana, sin prisa'},
+   schedule:{ru:'Суббота, 9:00 · сбор у м. Московское',en:'Saturday, 9 AM · meet at Moskovskoye metro',es:'Sábado, 9:00 · encuentro en metro Moskovskoye'},
+   leader:{ru:'Алина С.',en:'Alina S.',es:'Alina S.'},
+   status:'active',color:'#2E7D5B',members:5,roles:[],
+   memberList:{ru:['Алина С.','Вера Л.','Сергей П.','Игорь М.','Дмитрий К.'],en:['Alina S.','Vera L.','Sergey P.','Igor M.','Dmitry K.'],es:['Alina S.','Vera L.','Sergio P.','Igor M.','Dmitri K.']}},
+];
 
 const PEOPLE = [
   {id:1,name:{ru:'Игорь М.',en:'Igor M.',es:'Igor M.'},first:{ru:'Игорь',en:'Igor',es:'Igor'},init:{ru:'ИМ',en:'IM',es:'IM'},color:'#2E7D5B',
@@ -821,8 +956,10 @@ const PEOPLE = [
 ];
 
 let lang=localStorage.getItem('kvity_lang')||'ru';
-let currentQuery='', openProfileId=null, ringAgreed=false, invites=3, slotTaken=false, joinedVol=false;
+let currentQuery='', openProfileId=null, openCollectiveId=null, ringAgreed=false, invites=3, slotTaken=false, joinedVol=false;
 let userPaused=false, pendingProposeName='', selectedRating=0, chatWaitingConfirm=false;
+let colMatchShown=false;
+const colState={1:{member:false,roleId:null},2:{member:false,roleId:null}};
 const t=()=>T[lang];
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
@@ -836,6 +973,7 @@ function setLang(l){
   if(isOn('profile')&&openProfileId)openProfile(openProfileId,false);
   if(isOn('me'))renderMe();
   if(isOn('projects'))renderProjects();
+  if(isOn('collective')&&openCollectiveId)renderCollective();
   if(isOn('dash'))renderDash();
   if(isOn('chat'))renderChat();
 }
@@ -848,6 +986,7 @@ function renderStatic(){
   document.getElementById('biglogo').innerHTML=x.logo;
   document.getElementById('minilogo').innerHTML=x.mini;
   document.getElementById('tagline').textContent=x.tagline;
+  document.getElementById('subtagline').textContent=x.subtagline;
   document.getElementById('philo').innerHTML=x.philo.map(p=>`<div class="philoline">${p}</div>`).join('');
   document.getElementById('q').placeholder=x.ph;
   document.getElementById('gobtn').textContent=x.go;
@@ -857,7 +996,8 @@ function renderStatic(){
   document.getElementById('meback').textContent=x.meback;
   document.getElementById('resgeo').textContent=x.geo;
   document.getElementById('q2').placeholder=x.ph;
-  document.getElementById('projhead').textContent=x.pTitle;
+  document.getElementById('projhead').textContent=x.colTitle;
+  document.getElementById('colback').textContent=x.colBack;
   document.getElementById('dashhead').textContent=x.dTitle;
   document.getElementById('modalno').textContent=x.modalNo;
   ['nl1','nl2','nl3'].forEach((id,i)=>document.getElementById(id).textContent=x.nav[i]);
@@ -902,13 +1042,13 @@ function renderFilters(){
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const navMap={home:'nav-home',results:'nav-home',profile:'nav-home',me:'nav-home',projects:'nav-projects',dash:'nav-dash',chat:'nav-dash'};
+  const navMap={home:'nav-home',results:'nav-home',profile:'nav-home',me:'nav-home',projects:'nav-projects',collective:'nav-projects',dash:'nav-dash',chat:'nav-dash'};
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
   document.getElementById(navMap[id]).classList.add('on');
   window.scrollTo(0,0);
 }
 function navTo(id){
-  if(id==='projects')renderProjects();
+  if(id==='projects'){renderProjects();if(!colMatchShown){colMatchShown=true;setTimeout(()=>toast(t().colMatchToast),400);}}
   if(id==='dash')renderDash();
   show(id);
 }
@@ -1078,6 +1218,9 @@ function renderMe(){
       <div class="skillslist">${ME.skills.map(s=>`<span class="skilltag">${s[lang]}</span>`).join('')}</div>
       <div class="sect">${x.myNeeds}</div>
       <div class="skillslist">${ME.needs.map(n=>`<span class="needtag">${n[lang]}</span>`).join('')}</div>
+      <div class="sect">${x.myInterests}</div>
+      <div class="skillslist">${ME.interests.map(i=>`<span class="interesttag">${i[lang]}</span>`).join('')}</div>
+      <div class="bnote" style="margin-top:10px">🎭 ${x.colLeaderStats}</div>
       <div class="pstats" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
         <div class="pstat"><div class="v mono">1/${CONFIG.debtLimit}</div><div class="k">${x.dDebts}</div></div>
         <div class="pstat"><div class="v">${ME.closedDeals}</div><div class="k">${x.closedDeals}</div></div>
@@ -1100,7 +1243,8 @@ function togglePause(){
 function resetDemo(){
   ringAgreed=false;matchSent=false;invites=3;slotTaken=false;joinedVol=false;
   userPaused=false;chatState='neg';chatMsgs=null;dealShared=false;selectedRating=0;chatWaitingConfirm=false;
-  currentQuery='';openProfileId=null;
+  currentQuery='';openProfileId=null;openCollectiveId=null;colMatchShown=false;
+  Object.keys(colState).forEach(k=>{colState[k]={member:false,roleId:null};});
   document.getElementById('q').value='';
   document.getElementById('morefilters').classList.remove('open');
   document.querySelectorAll('.chip.on[data-f]').forEach(c=>c.classList.remove('on'));
@@ -1160,11 +1304,128 @@ function sendMatch(){matchSent=true;renderDash();toast(t().dMatchToast);}
 function agreeRing(){ringAgreed=true;renderDash();toast(t().dRingToast);}
 function sendInvite(){if(invites>0){invites--;renderDash();toast(t().dInvToast);}}
 
+function colStatusLbl(c,x){
+  return c.status==='recruiting'?x.colStatusRec:c.status==='paused'?x.colStatusPause:x.colStatusAct;
+}
+function colStatusCls(c){return c.status==='recruiting'?'col-st-rec':'col-st-act';}
+function colMemberCount(c){
+  const st=colState[c.id];
+  return c.members+(st?.member?1:0);
+}
+function colFreeRoles(c){
+  const st=colState[c.id];
+  return c.roles.filter(r=>!r.takenBy&&st?.roleId!==r.id).length;
+}
+function isColMember(id){return !!colState[id]?.member;}
+function openCollective(id){
+  openCollectiveId=id;
+  renderCollective();
+  show('collective');
+}
+function joinCol(id,noRole){
+  const st=colState[id];
+  if(st.member)return;
+  st.member=true;
+  if(!noRole){
+    const col=COLLECTIVES.find(c=>c.id===id);
+    const free=col?.roles.find(r=>!r.takenBy&&st.roleId!==r.id);
+    if(free){st.roleId=free.id;toast(t().colRoleTaken(free.title[lang]));return;}
+  }
+  toast(t().colJoined);
+  if(isOn('collective'))renderCollective();
+  else if(isOn('projects'))renderProjects();
+}
+function takeColRole(colId,roleId){
+  const st=colState[colId];
+  if(!st.member)st.member=true;
+  st.roleId=roleId;
+  const r=COLLECTIVES.find(c=>c.id===colId).roles.find(x=>x.id===roleId);
+  toast(t().colRoleTaken(r.title[lang]));
+  renderCollective();
+  if(isOn('projects'))renderProjects();
+}
+function leaveCol(id){
+  colState[id]={member:false,roleId:null};
+  toast(t().colLeft);
+  if(isOn('collective'))renderCollective();
+  if(isOn('projects'))renderProjects();
+}
+function createCol(){toast(t().colCreateToast);}
+function renderCollective(){
+  const c=COLLECTIVES.find(x=>x.id===openCollectiveId);
+  if(!c)return;
+  const x=t(),st=colState[c.id]||{member:false,roleId:null};
+  const youLbl=lang==='ru'?'Вы':lang==='es'?'Vos':'You';
+  const members=[...c.memberList[lang]];
+  if(st.member&&!members.includes(youLbl))members.push(youLbl);
+  document.getElementById('colbody').innerHTML=`
+    <div class="pcard">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="pname">${c.title[lang]}</div>
+          <div class="psub">${c.desc[lang]}</div>
+        </div>
+        <span class="colstatus ${colStatusCls(c)}">${colStatusLbl(c,x)}</span>
+      </div>
+      <div class="colmeta">
+        <span>👤 ${x.colLeader(c.leader[lang])}</span>
+        <span>🗓 ${c.schedule[lang]}</span>
+        <span>👥 ${x.colMembers(colMemberCount(c))}</span>
+      </div>
+    </div>
+    <div class="sect">${x.colMembersTitle}</div>
+    <div class="pcard">${members.map(m=>`<div class="colrole"><span>${m}</span></div>`).join('')}</div>
+    ${c.roles.length?`
+    <div class="sect">${x.colRolesTitle}</div>
+    <div class="pcard">${c.roles.map(r=>{
+      const mine=st.roleId===r.id;
+      const busy=r.takenBy&&!mine;
+      return `<div class="colrole">
+        <span>🎭 ${r.title[lang]}</span>
+        ${mine?`<span class="xp" style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--deal-dark)">${x.you||'you'}</span>`:
+          busy?`<span style="color:var(--ink-soft);font-size:13px">${x.colRoleBusy}</span>`:
+          `<button type="button" class="colrolebtn" onclick="takeColRole(${c.id},'${r.id}')">${x.colRoleFree}</button>`}
+      </div>`;
+    }).join('')}</div>`:''}
+    <div class="bnote" style="margin:4px 6px">💡 ${x.colDealNote}</div>
+    <div class="btnrow">
+      ${st.member?
+        `<button type="button" class="btn-pause" onclick="leaveCol(${c.id})">${x.colLeave}</button>`:
+        c.roles.length?
+          `<button type="button" class="propose" style="margin-top:0;flex:1" onclick="joinCol(${c.id},true)">${x.colJoinNoRole}</button>
+           <button type="button" class="propose sec" style="margin-top:0;flex:1" onclick="joinCol(${c.id},false)">${x.colJoin}</button>`:
+          `<button type="button" class="propose" style="margin-top:0;flex:1" onclick="joinCol(${c.id},true)">${x.colJoin}</button>`}
+    </div>
+  `;
+}
+
 function renderProjects(){
   const x=t();
+  const cards=COLLECTIVES.map(c=>{
+    const free=colFreeRoles(c);
+    const joined=isColMember(c.id);
+    return `<button type="button" class="colcard" onclick="openCollective(${c.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="font-weight:600;font-size:15.5px">${c.title[lang]}</div>
+        <span class="colstatus ${colStatusCls(c)}">${colStatusLbl(c,x)}</span>
+      </div>
+      <div class="psub" style="margin-top:6px">${c.desc[lang]}</div>
+      <div class="colmeta">
+        <span>👤 ${c.leader[lang]}</span>
+        <span>👥 ${x.colMembers(colMemberCount(c))}</span>
+        ${c.roles.length?`<span>🎭 ${x.colRolesFree(free)}</span>`:''}
+        ${joined?`<span style="color:var(--deal-dark);font-weight:600">✓ ${x.colJoinedBadge}</span>`:''}
+      </div>
+    </button>`;
+  }).join('');
   document.getElementById('projbody').innerHTML=`
-    <div class="sect">${x.pTitle}</div>
-
+    <div class="colintro">${x.colIntro}</div>
+    <div style="margin-bottom:14px">
+      <button type="button" class="propose sec" style="margin-top:0" onclick="createCol()">${x.colCreate}</button>
+    </div>
+    ${cards}
+    <div class="sect" style="margin-top:24px">${x.colLegacy}</div>
+    <div class="bnote" style="margin:0 6px 12px">${x.colLegacyNote}</div>
     <div class="pcard">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
         <div style="font-weight:600;font-size:15.5px">${x.p1name}</div>
